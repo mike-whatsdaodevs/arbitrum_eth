@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
  * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
  * implementation behind the proxy.
  */
-contract BTCZProxy is ERC1967Proxy {
+contract COD20Proxy is ERC1967Proxy {
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
