@@ -19,63 +19,69 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('deployer:' + deployer.address)
 
-  const ZWattToken = await hre.ethers.getContractFactory('ZWattToken')
-  const zWattToken = await ZWattToken.deploy(deployer.address, deployer.address)
-  await zWattToken.deployed()
+  const SFuelToken = await hre.ethers.getContractFactory('SFuelToken')
+  const sfuel = await SFuelToken.deploy(deployer.address, deployer.address)
+  await sfuel.deployed()
 
-  console.log(zWattToken.address)
+  const BTCCToken = await hre.ethers.getContractFactory('BTCCToken')
+  const btcc = await BTCCToken.deploy(deployer.address)
+  await btcc.deployed()
 
+  const NFTMiner1 = await hre.ethers.getContractFactory('NFTMiner')
+  const nftMiner1 = await NFTMiner1.deploy()
+  await nftMiner1.deployed()
 
-  const BTCToken = await hre.ethers.getContractFactory('BTCZToken')
-  const zBTCToken = await BTCToken.deploy(deployer.address)
-  await zBTCToken.deployed()
+  const NFTMiner2 = await hre.ethers.getContractFactory('NFTMiner')
+  const nftMiner2 = await NFTMiner2.deploy()
+  await nftMiner2.deployed()
 
+  const NFTMiner3 = await hre.ethers.getContractFactory('NFTMiner')
+  const nftMiner3 = await NFTMiner3.deploy()
+  await nftMiner3.deployed()
 
-  console.log("zWatt address :",zWattToken.address)
-
-  console.log("btcz address :",zBTCToken.address)
-
-  // const ZWattToken = await hre.ethers.getContractFactory('ZWattToken')
-  // const zWattToken = await ZWattToken.deploy('0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804', '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
-  // await zWattToken.deployed()
-
-  const NFTMiner = await hre.ethers.getContractFactory('NFTMiner')
-  const nftMiner = await NFTMiner.deploy()
-  await nftMiner.deployed()
-
-  const NFTRepository = await hre.ethers.getContractFactory('NFTProperty')
-  const repository = await NFTRepository.deploy()
-  await repository.deployed()
+  const NFTProperty = await hre.ethers.getContractFactory('NFTProperty')
+  const property = await NFTProperty.deploy()
+  await property.deployed()
 
   const NFTFactory = await hre.ethers.getContractFactory('NFTFactory')
-  const factory = await NFTFactory.deploy(nftMiner.address, repository.address)
+  const factory = await NFTFactory.deploy(property.address)
   await factory.deployed()
 
-  // let rewardsDuration = 4 * 365 * 60 * 60 * 24
-  // const MBTCStaking = await hre.ethers.getContractFactory('ZStaking')
-  // const staking = await MBTCStaking.deploy(zBTCToken.address, zWattToken.address, nftMiner.address, repository.address, rewardsDuration)
-  // await staking.deployed()
+  const ZStaking = await hre.ethers.getContractFactory('ZStaking')
+  const staking = await ZStaking.deploy()
+  await staking.deployed()
+
+  let rewardsDuration = 4 * 365 * 60 * 60 * 24
+  // const stakingObj = await hre.ethers.getContractAt('ZStaking', staking, signer)
+  const initialize_data = await staking.populateTransaction.initialize(
+    btcc.address,
+    sfuel.address,
+    property.address,
+    rewardsDuration
+  );
+  console.log("initialize data is",initialize_data)
+
+  const COD20Proxy = await hre.ethers.getContractFactory('COD20Proxy')
+  let proxy = await COD20Proxy.deploy(staking.address, initialize_data.data);
+  await proxy.deployed()
 
   let busdAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
   const MarketPlace = await hre.ethers.getContractFactory('MarketPlace')
-  const marketPlace = await MarketPlace.deploy(busdAddress, zBTCToken.address, nftMiner.address, '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
+  const marketPlace = await MarketPlace.deploy(busdAddress, btcc.address, nftMiner1.address, '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
   await marketPlace.deployed()
 
-  // BTCZToken deployed to: 0x185CA9c26C4969459972C475a5F4C7050c6eEC73
-  // ZWattToken deployed to: 0x33ddD022FBA43DF42cD74aB82ac6D1eAd7851bD0
-  // NFTMiner deployed to: 0x2c4A9a3fbCa6e5454d68D5286Cae506069a5dAa8
-  // NFTRepository deployed to: 0x18951cB3AE0653e9244077fBc15a809701959dD8
-  // NFTFactory deployed to: 0x46407Aa9bBd7A56077442f0B38103041C8951D9E
-  // ZStaking deployed to: 0x30369e9eC10509574Aa24cB1393AB5Ca4CbfF770
-  // MarketPlace deployed to: 0x0EE9FDb3488FCeb675D5b0BcFffB7079CA627F39
+  console.log("sfuel address :",sfuel.address);
+  console.log("btcc address :",btcc.address);
 
-  console.log('BTCZToken deployed to:', zBTCToken.address)
-  console.log('ZWattToken deployed to:', zWattToken.address)
-  console.log('NFTMiner deployed to:', nftMiner.address)
-  console.log('NFTRepository deployed to:', repository.address)
+  console.log('NFTMiner1 deployed to:', nftMiner1.address)
+  console.log('NFTMiner2 deployed to:', nftMiner2.address)
+  console.log('NFTMiner3 deployed to:', nftMiner3.address)
+
+  console.log('NFTProperty deployed to:', property.address)
   console.log('NFTFactory deployed to:', factory.address)
-//  console.log('ZStaking deployed to:', staking.address)
   console.log('MarketPlace deployed to:', marketPlace.address)
+  console.log('Proxy deployed to:', proxy.address)
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

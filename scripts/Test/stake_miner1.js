@@ -14,18 +14,18 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  let staking_address = process.env.STAKING_NEW
-  let miner_address = process.env.MINER
-  let zfuel_address = process.env.ZWATT_NEW
-
   // let staking_address = process.env.STAKING_TEST
   // let miner_address = process.env.MINER_TEST
   // let zfuel_address = process.env.ZWATT_TEST
-  // let wallet = process.env.WALLET
+
+  let staking_address = process.env.LOCAL_PROXY;
+  let miner1_address = process.env.LOCAL_MINER1;
+  let sfuel_address = process.env.LOCAL_SFUEL;
+  let wallet = process.env.WALLET
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner = await ethers.getContractAt('NFTMiner', miner_address, signer)
-  const token = await ethers.getContractAt('ZWattToken', zfuel_address, signer)
+  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
 
   // let transferOwnership_tx = await staking.transferOwnership(wallet)
@@ -34,19 +34,38 @@ async function main() {
 
   // await transferOwnership_tx.wait();
     
- 
+  let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)
+  await approve_miner_Tx.wait();
+  console.log('approveTx:' + approve_miner_Tx.hash)
 
-  // console.log(ethers.utils.parseEther("1"));
+  // // // // staking
+  let nfts = Array(
+    miner1_address,
+    miner1_address,
+    miner1_address,
+    miner1_address,
+    miner1_address,
+  );
 
-  // let BASE_DIVIDER = await staking.BASE_DIVIDER()
-  // console.log("BASE_DIVIDER is", BASE_DIVIDER)
+  let ids = Array(
+    1, 2, 3, 4, 5
+  );
 
-  // let zFuelRate = await staking.zFuelRate()
-  // console.log("zFuelRate is", zFuelRate)
+  let stakingTx = await staking.batchStake(nfts, ids);
+  console.log('stakingTx:' + stakingTx.hash)
+  await stakingTx.wait();
 
-  // let FIRST_EPOCH_REWARDS = await staking.FIRST_EPOCH_REWARDS()
-  // console.log(FIRST_EPOCH_REWARDS);
+  let totalHashRate = await staking.totalHashRate();
+  console.log("totalHashRate is:", totalHashRate);
 
+  let myHashRate = await staking.hashRateOf(deployer.address);
+  console.log("myHashRate is:", myHashRate);
+
+  let totalConsumption = await staking.totalConsumption();
+  console.log("totalConsumption is:", totalConsumption);
+
+  let myConsumption = await staking.consumptionOf(deployer.address);
+  console.log("myConsumption is:", myConsumption);
 
   // let withdrawAllMinersTx = await staking.withdrawAllMiners()
   // console.log('withdrawAllMinersTx:' + withdrawAllMinersTx.hash)
@@ -54,12 +73,14 @@ async function main() {
 
   // return;
 
- 
-  let earned = await staking.earned(deployer.address)
-  console.log('earned: ', ethers.utils.formatEther(earned))
+  // // let rewardRate = await staking.rewardRate()
+  // // console.log('rewardRate: ' + rewardRate)
 
-  let consumption = await staking.consumption(deployer.address)
-  console.log('consumption: ' , ethers.utils.formatEther(consumption));
+  // let earned = await staking.earned(deployer.address)
+  // console.log('earned: ', earned)
+
+  // let consumption = await staking.consumption(deployer.address)
+  // console.log('consumption: ' , consumption)
 
   // let minerAmountOf = await staking.minerAmountOf(deployer.address)
   // console.log('minerAmountOf: ' + minerAmountOf)
@@ -76,21 +97,16 @@ async function main() {
   // console.log('rewardTx: ' + rewardTx.hash)
   // await rewardTx.wait()
 
-
-  // let earned1 = await staking.earned(deployer.address)
-  // console.log('earned: ', ethers.utils.formatEther(earned1))
-
-  // let consumption1 = await staking.consumption(deployer.address)
-  // console.log('consumption: ' , ethers.utils.formatEther(consumption1))
+  // return;
 
   // approve
   // let approveTokenTx = await token.approve(process.env.STAKING, consumption)
   // console.log('approveTokenTx:' + approveTokenTx.hash)
   // await approveTokenTx.wait()
 
-  let withdrawTx = await staking.withdrawMiner(23050)
-  console.log('withdrawTx:' + withdrawTx.hash)
-  await withdrawTx.wait()
+  // let withdrawTx = await staking.withdrawMiner(4)
+  // console.log('withdrawTx:' + withdrawTx.hash)
+  // await withdrawTx.wait()
 }
 
 main()

@@ -64,7 +64,7 @@ contract ZStaking is
 
     // User's reward amount
     mapping(address => uint256) public rewards;
-    mapping(uint256 => NftStake) public nftStakes;
+    mapping(address => mapping(uint256 => NftStake)) public nftStakes;
     mapping(address => uint256) public consumptions;
     // user's computing power
     mapping(address => uint256) private _hashRateOf;
@@ -221,7 +221,7 @@ contract ZStaking is
 
         IERC721(nftAddr).safeTransferFrom(msg.sender, address(this), minerId);
 
-        nftStakes[minerId] = NftStake({
+        nftStakes[nftAddr][minerId] = NftStake({
             staker: msg.sender,
             nftAddr: nftAddr,
             minerId: minerId,
@@ -272,7 +272,7 @@ contract ZStaking is
             minerOwnerOf(nftAddr, minerId) == msg.sender,
             "withdraw of token that is not own"
         );
-        NftStake memory nftStake = nftStakes[minerId];
+        NftStake memory nftStake = nftStakes[nftAddr][minerId];
         _totalHashRate = _totalHashRate.sub(nftStake.hashRate);
         _hashRateOf[msg.sender] = _hashRateOf[msg.sender].sub(
             nftStake.hashRate
@@ -284,7 +284,7 @@ contract ZStaking is
         _holderMiners[nftAddr][msg.sender].remove(minerId);
         _minerOwners[nftAddr].set(minerId, address(0));
 
-        delete nftStakes[minerId];
+        delete nftStakes[nftAddr][minerId];
 
         IERC721(nftAddr).safeTransferFrom(address(this), msg.sender, minerId);
         emit MinerWithdrawn(msg.sender, minerId);

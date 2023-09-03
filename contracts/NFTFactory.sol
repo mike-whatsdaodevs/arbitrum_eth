@@ -40,7 +40,7 @@ contract NFTFactory is Pausable, Ownable {
     }
 
     function buildMiner(address nftAddr, uint256[] calldata properties, address target)
-        external
+        public
         whenNotPaused
         onlyOwner
         onlyValidMiner(nftAddr)
@@ -50,6 +50,27 @@ contract NFTFactory is Pausable, Ownable {
         property.addProperty(nftAddr, id, properties);
         return id;
     }
+
+    function batchBuildMiner(
+        address nftAddr, 
+        uint256[] calldata properties, 
+        address target, 
+        uint256 amount
+    )
+        public
+        whenNotPaused
+        onlyOwner
+        onlyValidMiner(nftAddr)
+        returns (uint256[] memory)
+    {
+        require(amount != 0, "E: amount can't be zero");
+
+        uint256[] memory ids = new uint256[](amount);
+        for(uint i = 0; i < amount; i ++) {
+            ids[i] = buildMiner(nftAddr, properties, target);
+        }
+        return ids;
+    }   
 
     /* ========== EVENTS ========== */
     event SetNFTMiner(address indexed minerAddress);

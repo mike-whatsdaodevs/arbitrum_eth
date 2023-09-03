@@ -17,11 +17,11 @@ async function main() {
   // let staking_address = process.env.STAKING_TEST
   // let btcz_address = process.env.BTCZ_TEST
 
-  let staking_address = process.env.STAKING_TEST
-  let btcz_address = process.env.BTCZ_TEST
+  let staking_address = process.env.LOCAL_PROXY
+  let btcc_address = process.env.LOCAL_BTCC;
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const token = await ethers.getContractAt('BTCZToken', btcz_address, signer)
+  const token = await ethers.getContractAt('BTCCToken', btcc_address, signer)
 
   // totalSupply
   let totalSupply = await token.totalSupply()
@@ -32,6 +32,8 @@ async function main() {
   console.log('amount:' + amount)
 
   // approve
+  let approveTx = await token.approve(staking_address, ethers.constants.MaxUint256);
+  await approveTx.wait();
 
   // start
   let startTx = await staking.start()

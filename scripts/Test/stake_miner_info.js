@@ -16,26 +16,17 @@ async function main() {
 
   let my_address = deployer.address;
 
-  let staking_address = process.env.STAKING_NEW
-  let miner_address = process.env.MINER
-  let zfuel_address = process.env.ZWATT_NEW
-
-  // let staking_address = process.env.STAKING_TEST
-  // let miner_address = process.env.MINER_TEST
-  // let zfuel_address = process.env.ZWATT_TEST
-  // let wallet = process.env.WALLET
+  let staking_address = process.env.LOCAL_PROXY;
+  let miner1_address = process.env.LOCAL_MINER1;
+  let miner2_address = process.env.LOCAL_MINER2;
+  let miner3_address = process.env.LOCAL_MINER3;
+  let sfuel_address = process.env.LOCAL_SFUEL;
+  let wallet = process.env.WALLET
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner = await ethers.getContractAt('NFTMiner', miner_address, signer)
-  const token = await ethers.getContractAt('ZWattToken', zfuel_address, signer)
+  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
-
-  // let transferOwnership_tx = await staking.transferOwnership(wallet)
-
-  // console.log(transferOwnership_tx.hash);
-
-  // await transferOwnership_tx.wait();
-    
   // // // // // staking
 
   let rewardRate = await staking.rewardRate()
@@ -47,13 +38,20 @@ async function main() {
   let consumption = await staking.consumption(my_address)
   console.log('consumption: ' , ethers.utils.formatEther(consumption.toString()))
 
-  let minerAmountOf = await staking.minerAmountOf(my_address)
-  console.log('minerAmountOf: ' + minerAmountOf)
+  let miner1AmountOf = await staking.minerAmountOf(miner1_address, my_address)
+  console.log('miner1AmountOf: ' + miner1AmountOf)
+
+  let miner2AmountOf = await staking.minerAmountOf(miner2_address, my_address)
+  console.log('miner2AmountOf: ' + miner2AmountOf)
+
+
+  let miner3AmountOf = await staking.minerAmountOf(miner3_address, my_address)
+  console.log('miner3AmountOf: ' + miner3AmountOf)
 
   let totalHashRate = await staking.totalHashRate()
   console.log('totalHashRate is: ', totalHashRate)
 
-    let myHashRate = await staking.hashRateOf(my_address)
+  let myHashRate = await staking.hashRateOf(my_address)
   console.log('myHashRate is: ', myHashRate)
 
 

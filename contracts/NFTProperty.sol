@@ -14,9 +14,10 @@ contract NFTProperty is INFTProperty, Manage {
     uint256 public defaultHashRate;
     uint256 public defaultConsumption;
 
-
     /// nft address => nft id ==> property
     mapping(address => mapping(uint256 => Property)) public property;
+
+    constructor() {}
 
     function addProperty(address nftAddr, uint256 id, uint256[] calldata properties)
         external

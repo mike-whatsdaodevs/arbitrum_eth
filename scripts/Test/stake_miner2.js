@@ -18,14 +18,15 @@ async function main() {
   // let miner_address = process.env.MINER_TEST
   // let zfuel_address = process.env.ZWATT_TEST
 
-  let staking_address = process.env.STAKING_TEST
-  let miner_address = process.env.MINER_TEST
-  let zfuel_address = process.env.ZWATT_TEST
+  let staking_address = process.env.LOCAL_PROXY;
+  let miner1_address = process.env.LOCAL_MINER1;
+  let miner2_address = process.env.LOCAL_MINER2;
+  let sfuel_address = process.env.LOCAL_SFUEL;
   let wallet = process.env.WALLET
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner = await ethers.getContractAt('NFTMiner', miner_address, signer)
-  const token = await ethers.getContractAt('ZWattToken', zfuel_address, signer)
+  const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
+  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
 
   // let transferOwnership_tx = await staking.transferOwnership(wallet)
@@ -34,27 +35,38 @@ async function main() {
 
   // await transferOwnership_tx.wait();
     
- 
-
-  // console.log(ethers.utils.parseEther("1"));
-
-  // let BASE_DIVIDER = await staking.BASE_DIVIDER()
-  // console.log("BASE_DIVIDER is", BASE_DIVIDER)
-
-  // let zFuelRate = await staking.zFuelRate()
-  // console.log("zFuelRate is", zFuelRate)
-
-  // let FIRST_EPOCH_REWARDS = await staking.FIRST_EPOCH_REWARDS()
-  // console.log(FIRST_EPOCH_REWARDS);
-
-  let approve_miner_Tx = await miner.setApprovalForAll(staking_address, true)
+  let approve_miner_Tx = await miner2.setApprovalForAll(staking_address, true)
+  await approve_miner_Tx.wait();
   console.log('approveTx:' + approve_miner_Tx.hash)
-  await approve_miner_Tx.wait()
 
   // // // // staking
-  let stakingTx = await staking.stake(6)
+  let nfts = Array(
+    miner2_address,
+    miner2_address,
+    miner2_address,
+    miner2_address,
+    miner2_address,
+  );
+
+  let ids = Array(
+    1, 2, 3, 4, 5
+  );
+
+  let stakingTx = await staking.batchStake(nfts, ids);
   console.log('stakingTx:' + stakingTx.hash)
-  await stakingTx.wait()
+  await stakingTx.wait();
+
+  let totalHashRate = await staking.totalHashRate();
+  console.log("totalHashRate is:", totalHashRate);
+
+  let myHashRate = await staking.hashRateOf(deployer.address);
+  console.log("myHashRate is:", myHashRate);
+
+  let totalConsumption = await staking.totalConsumption();
+  console.log("totalConsumption is:", totalConsumption);
+
+  let myConsumption = await staking.consumptionOf(deployer.address);
+  console.log("myConsumption is:", myConsumption);
 
   // let withdrawAllMinersTx = await staking.withdrawAllMiners()
   // console.log('withdrawAllMinersTx:' + withdrawAllMinersTx.hash)
