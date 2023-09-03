@@ -42,7 +42,7 @@ contract ZStaking is
 
     /* ========== STATE VARIABLES ========== */
     // addreses
-    IERC20 public BTCZ;
+    IERC20 public btcc;
     ISFuel public sFuel;
     IERC721 public NFTMiner;
 
@@ -90,8 +90,8 @@ contract ZStaking is
     }
 
     function initialize(
-        address _mBtcToken,
-        address _mFuelToken,
+        address _btcc,
+        address _sFuelToken,
         address _property,
         uint256 _rewardsDuration
     ) external initializer {
@@ -102,8 +102,8 @@ contract ZStaking is
         __UUPSUpgradeable_init();
 
         require(_rewardsDuration != 0, "rewardsDuration is zero");
-        BTCZ = IERC20(_mBtcToken);
-        sFuel = ISFuel(_mFuelToken);
+        btcc = IERC20(_btcc);
+        sFuel = ISFuel(_sFuelToken);
         property = INFTProperty(_property);
         rewardsDuration = _rewardsDuration;
 
@@ -115,7 +115,7 @@ contract ZStaking is
 
     // Open mining pool
     function start() external onlyOwner {
-        BTCZ.transferFrom(msg.sender, address(this), BTCZ.totalSupply());
+        btcc.transferFrom(msg.sender, address(this), btcc.totalSupply());
         notifyRewardAmount(FIRST_EPOCH_REWARDS);
         emit Start(msg.sender);
     }
@@ -323,7 +323,7 @@ contract ZStaking is
 
             rewards[msg.sender] = 0;
             consumptions[msg.sender] = 0;
-            BTCZ.transfer(msg.sender, reward);
+            btcc.transfer(msg.sender, reward);
             emit RewardPaid(msg.sender, reward);
         }
     }
@@ -434,7 +434,7 @@ contract ZStaking is
     {
         // Cannot recover the staking token or the rewards token
         require(
-            tokenAddress != address(BTCZ),
+            tokenAddress != address(btcc),
             "Cannot withdraw the staking or rewards tokens"
         );
         IERC20(tokenAddress).transfer(owner(), tokenAmount);
