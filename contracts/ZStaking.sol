@@ -14,7 +14,7 @@ import {MathUpgradeable as Math} from "@openzeppelin/contracts-upgradeable/utils
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {INFTProperty} from "./interface/INFTProperty.sol";
-import {IZfuel} from "./interface/IZfuel.sol";
+import {ISFuel} from "./interface/ISFuel.sol";
 
 contract ZStaking is 
     ReentrancyGuardUpgradeable, 
@@ -43,7 +43,7 @@ contract ZStaking is
     /* ========== STATE VARIABLES ========== */
     // addreses
     IERC20 public BTCZ;
-    IZfuel public zFuel;
+    ISFuel public zFuel;
     IERC721 public NFTMiner;
 
     uint256 private _totalHashRate;
@@ -101,7 +101,7 @@ contract ZStaking is
 
         require(_rewardsDuration != 0, "rewardsDuration is zero");
         BTCZ = IERC20(_mBtcToken);
-        zFuel = IZfuel(_mFuelToken);
+        zFuel = ISFuel(_mFuelToken);
         property = INFTProperty(_property);
         rewardsDuration = _rewardsDuration;
 
@@ -373,7 +373,7 @@ contract ZStaking is
 
     function setZFuelAddress(address _addr) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
-        zFuel = IZfuel(_addr);
+        zFuel = ISFuel(_addr);
     }
 
     function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {

@@ -3,6 +3,7 @@
 pragma solidity 0.8.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../interface/ISFuel.sol";
 
 contract SFuelToken is ERC20, Ownable {
     mapping(address => bool) private _isExcludedFromFee;
