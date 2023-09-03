@@ -26,7 +26,7 @@ contract ZStaking is
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
     using EnumerableMap for EnumerableMap.UintToAddressMap;
-    EnumerableMap.UintToAddressMap private _minerOwners;
+    mapping(address => EnumerableMap.UintToAddressMap) private _minerOwners;
 
     struct NftStake {
         address staker;
@@ -74,7 +74,7 @@ contract ZStaking is
     mapping(address => uint256) private _consumptionAllOf;
     mapping(address => uint256) public userRewardPerHashRatePaid;
     mapping(address => uint256) public userConsumptionPerHashRatePaid;
-    mapping(address => EnumerableSet.UintSet) private _holderMiners;
+    mapping(address => mapping(address => EnumerableSet.UintSet)) private _holderMiners;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -229,8 +229,8 @@ contract ZStaking is
             consumption: _consumption,
             lastUpdateTime: block.timestamp
         });
-        _holderMiners[msg.sender].add(minerId);
-        _minerOwners.set(minerId, msg.sender);
+        _holderMiners[nftAddr][msg.sender].add(minerId);
+        _minerOwners[nftAddr].set(minerId, msg.sender);
         _totalHashRate = _totalHashRate.add(hashRate);
         _hashRateOf[msg.sender] = _hashRateOf[msg.sender].add(hashRate);
         _consumptionOf[msg.sender] = _consumptionOf[msg.sender].add(
@@ -252,9 +252,9 @@ contract ZStaking is
      *   @notice withdraw nft from contract
      */
     function withdrawAllMiners(address nftAddr) external {
-        uint256 amount = minerAmountOf(msg.sender);
+        uint256 amount = minerAmountOf(nftAddr, msg.sender);
         for (uint256 i = 0; i < amount; i++) {
-            withdrawMiner(nftAddr, minerOfOwnerByIndex(msg.sender, 0));
+            withdrawMiner(nftAddr, minerOfOwnerByIndex(nftAddr, msg.sender, 0));
         }
     }
 
@@ -269,7 +269,7 @@ contract ZStaking is
         nonReentrant
     {
         require(
-            minerOwnerOf(minerId) == msg.sender,
+            minerOwnerOf(nftAddr, minerId) == msg.sender,
             "withdraw of token that is not own"
         );
         NftStake memory nftStake = nftStakes[minerId];
@@ -281,8 +281,8 @@ contract ZStaking is
         _consumptionOf[msg.sender] = _consumptionOf[msg.sender].sub(
             nftStake.consumption
         );
-        _holderMiners[msg.sender].remove(minerId);
-        _minerOwners.set(minerId, address(0));
+        _holderMiners[nftAddr][msg.sender].remove(minerId);
+        _minerOwners[nftAddr].set(minerId, address(0));
 
         delete nftStakes[minerId];
 
@@ -353,24 +353,24 @@ contract ZStaking is
         return _consumptionAllOf[_owner];
     }
 
-    function minerOwnerOf(uint256 tokenId) private view returns (address) {
-        return _minerOwners.get(tokenId, "query for nonexistent token");
+    function minerOwnerOf(address nftAddr, uint256 tokenId) private view returns (address) {
+        return _minerOwners[nftAddr].get(tokenId, "query for nonexistent token");
     }
 
-    function minerAmountOf(address owner) public view returns (uint256) {
+    function minerAmountOf(address nftAddr, address owner) public view returns (uint256) {
         require(
             owner != address(0),
             "Staking: balance query for the zero address"
         );
-        return _holderMiners[owner].length();
+        return _holderMiners[nftAddr][owner].length();
     }
 
-    function minerOfOwnerByIndex(address owner, uint256 index)
+    function minerOfOwnerByIndex(address nftAddr, address owner, uint256 index)
         public
         view
         returns (uint256)
     {
-        return _holderMiners[owner].at(index);
+        return _holderMiners[nftAddr][owner].at(index);
     }
 
     function setSFuelAddress(address _addr) external onlyOwner whenNotPaused {
