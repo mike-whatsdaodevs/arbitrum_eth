@@ -43,7 +43,7 @@ contract ZStaking is
     /* ========== STATE VARIABLES ========== */
     // addreses
     IERC20 public BTCZ;
-    ISFuel public zFuel;
+    ISFuel public sFuel;
     IERC721 public NFTMiner;
 
     uint256 private _totalHashRate;
@@ -51,7 +51,7 @@ contract ZStaking is
 
     address public fuelReceiver;
     uint256 public lastUpdateTime;
-    uint256 public zFuelRate;
+    uint256 public sFuelRate;
     uint256 public rewardRate;
     uint256 public consumptionRate;
     uint256 public periodFinish;
@@ -82,6 +82,8 @@ contract ZStaking is
         _disableInitializers();
     }
 
+    receive() external payable {}
+
     modifier onlyValidMiner(address miner) {
         require(minerList[miner] == true, "E: miner is not valid");
         _;
@@ -101,11 +103,11 @@ contract ZStaking is
 
         require(_rewardsDuration != 0, "rewardsDuration is zero");
         BTCZ = IERC20(_mBtcToken);
-        zFuel = ISFuel(_mFuelToken);
+        sFuel = ISFuel(_mFuelToken);
         property = INFTProperty(_property);
         rewardsDuration = _rewardsDuration;
 
-        zFuelRate = 50;
+        sFuelRate = 50;
         BASE_DIVIDER = 100;
         FIRST_EPOCH_REWARDS = 50 * 6 * 24 * 365 * 4 ether;
 
@@ -297,9 +299,9 @@ contract ZStaking is
     {
         uint256 reward = rewards[msg.sender];
         uint256 currentConsumption = consumptions[msg.sender];
-        uint256 zFuelAmount = zFuel.balanceOf(msg.sender);
+        uint256 sFuelAmount = sFuel.balanceOf(msg.sender);
         require(
-            zFuelAmount >= currentConsumption,
+            sFuelAmount >= currentConsumption,
             "ZWatt Insufficient balance"
         );
         _consumptionAllOf[msg.sender] = _consumptionAllOf[msg.sender].add(
@@ -307,17 +309,17 @@ contract ZStaking is
         );
         _totalConsumption = _totalConsumption.add(currentConsumption);
         if (reward > 0) {
-            uint256 burnAmount = currentConsumption.mul(zFuelRate).div(
+            uint256 burnAmount = currentConsumption.mul(sFuelRate).div(
                 BASE_DIVIDER
             );
-            zFuel.transferFrom(
+            sFuel.transferFrom(
                 msg.sender,
                 fuelReceiver,
                 currentConsumption.sub(burnAmount)
             );
             //mFuel burn
-            zFuel.transferFrom(msg.sender, address(this), burnAmount);
-            zFuel.burn(burnAmount);
+            sFuel.transferFrom(msg.sender, address(this), burnAmount);
+            sFuel.burn(burnAmount);
 
             rewards[msg.sender] = 0;
             consumptions[msg.sender] = 0;
@@ -371,9 +373,9 @@ contract ZStaking is
         return _holderMiners[owner].at(index);
     }
 
-    function setZFuelAddress(address _addr) external onlyOwner whenNotPaused {
+    function setSFuelAddress(address _addr) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
-        zFuel = ISFuel(_addr);
+        sFuel = ISFuel(_addr);
     }
 
     function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {
@@ -386,10 +388,10 @@ contract ZStaking is
         property = INFTProperty(_addr);
     }
 
-    function setZfuelRate(uint256 rate) external onlyOwner whenNotPaused {
+    function setSFuelRate(uint256 rate) external onlyOwner whenNotPaused {
         require(rate > 0, "rate is zero");
-        zFuelRate = rate;
-        emit SetZfuelRate(rate, msg.sender);
+        sFuelRate = rate;
+        emit SetSFuelRate(rate, msg.sender);
     }
 
     function setFuelReceiver(address _address)
@@ -491,6 +493,6 @@ contract ZStaking is
     event RewardPaid(address indexed user, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
-    event SetZfuelRate(uint256 rate, address user);
+    event SetSFuelRate(uint256 rate, address user);
     event SetFuelReceiver(address recevier, address user);
 }
