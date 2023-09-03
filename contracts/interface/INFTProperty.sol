@@ -3,16 +3,16 @@
 pragma solidity 0.8.6;
 
 interface INFTProperty {
-    function addProperty(uint256 id, uint256[] calldata properties) external;
+    function addProperty(address nftAddr, uint256 id, uint256[] calldata properties) external;
 
-    function removeProperty(uint256 id) external;
+    function removeProperty(address nftAddr, uint256 id) external;
 
-    function getHashRate(uint256 id) external view returns (uint256 hashRate);
+    function getHashRate(address nftAddr, uint256 id) external view returns (uint256 hashRate);
 
-    function getConsumption(uint256 id)
+    function getConsumption(address nftAddr, uint256 id)
         external
         view
         returns (uint256 consumption);
 
-    function getCreateTime(uint256 id) external view returns (uint256 time);
+    function getCreateTime(address nftAddr, uint256 id) external view returns (uint256 time);
 }

@@ -9,13 +9,17 @@ import "./interface/IMinerNFT.sol";
 import "./owner/Operator.sol";
 
 contract NFTFactory is Pausable, Ownable {
-    IMinerNFT public NFTMiner;
+    mapping(address => bool) public minerList;
 
-    INFTProperty public repository;
+    modifier onlyValidMiner(address miner) {
+        require(minerList[miner] == true, "E: miner is not valid");
+        _;
+    }
 
-    constructor(address minerContract, address repositoryContract) {
-        NFTMiner = IMinerNFT(minerContract);
-        repository = INFTProperty(repositoryContract);
+    INFTProperty public property;
+
+    constructor(address propertyContract) {
+        property = INFTProperty(propertyContract);
     }
 
     function pause() external virtual onlyOwner whenNotPaused {
@@ -26,28 +30,28 @@ contract NFTFactory is Pausable, Ownable {
         _unpause();
     }
 
-    function setNFTMiner(address minerAddress) external onlyOwner {
-        NFTMiner = IMinerNFT(minerAddress);
-        emit SetNFTMiner(minerAddress);
+    function setNFTMiner(address minerAddress, bool status) external onlyOwner {
+        minerList[minerAddress] = status;
     }
 
-    function setRepository(address repositoryAddress) external onlyOwner {
-        repository = INFTProperty(repositoryAddress);
-        emit SetRepository(repositoryAddress);
+    function setProperty(address propertyAddress) external onlyOwner {
+        property = INFTProperty(propertyAddress);
+        emit SetProperty(propertyAddress);
     }
 
-    function buildMiner(uint256[] calldata properties, address target)
+    function buildMiner(address nftAddr, uint256[] calldata properties, address target)
         external
         whenNotPaused
         onlyOwner
+        onlyValidMiner(nftAddr)
         returns (uint256)
     {
-        uint256 id = NFTMiner.mint(target);
-        repository.addProperty(id, properties);
+        uint256 id = IMinerNFT(nftAddr).mint(target);
+        property.addProperty(nftAddr, id, properties);
         return id;
     }
 
     /* ========== EVENTS ========== */
     event SetNFTMiner(address indexed minerAddress);
-    event SetRepository(address indexed repositoryAddress);
+    event SetProperty(address indexed propertyAddress);
 }

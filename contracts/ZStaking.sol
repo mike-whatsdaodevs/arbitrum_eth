@@ -29,14 +29,16 @@ contract ZStaking is
     EnumerableMap.UintToAddressMap private _minerOwners;
 
     struct NftStake {
-        address creator;
+        address staker;
+        address nftAddr;
         uint256 minerId;
         uint256 hashRate;
         uint256 consumption;
         uint256 lastUpdateTime;
     }
 
-    INFTProperty public repository;
+    mapping(address => bool) public minerList;
+    INFTProperty public property;
 
     /* ========== STATE VARIABLES ========== */
     // addreses
@@ -80,11 +82,15 @@ contract ZStaking is
         _disableInitializers();
     }
 
+    modifier onlyValidMiner(address miner) {
+        require(minerList[miner] == true, "E: miner is not valid");
+        _;
+    }
+
     function initialize(
         address _mBtcToken,
         address _mFuelToken,
-        address _minerNFT,
-        address _repository,
+        address _property,
         uint256 _rewardsDuration
     ) external initializer {
         __ERC721Holder_init();
@@ -96,8 +102,7 @@ contract ZStaking is
         require(_rewardsDuration != 0, "rewardsDuration is zero");
         BTCZ = IERC20(_mBtcToken);
         zFuel = IZfuel(_mFuelToken);
-        NFTMiner = IERC721(_minerNFT);
-        repository = INFTProperty(_repository);
+        property = INFTProperty(_property);
         rewardsDuration = _rewardsDuration;
 
         zFuelRate = 50;
@@ -190,9 +195,9 @@ contract ZStaking is
      *    @notice nft deposit contract
      *    @param minerIds => array of nft ids
      */
-    function batchStake(uint256[] calldata minerIds) external {
+    function batchStake(address[] calldata nftAddrs, uint256[] calldata minerIds) external {
         for (uint256 i = 0; i < minerIds.length; i++) {
-            stake(minerIds[i]);
+            stake(nftAddrs[i], minerIds[i]);
         }
     }
 
@@ -200,21 +205,23 @@ contract ZStaking is
      *    @notice nft deposit contract
      *    @param minerId => nft id
      */
-    function stake(uint256 minerId)
+    function stake(address nftAddr, uint256 minerId)
         public
         whenNotPaused
+        onlyValidMiner(nftAddr)
         updateReward(msg.sender)
         nonReentrant
     {
-        uint256 hashRate = repository.getHashRate(minerId);
+        uint256 hashRate = property.getHashRate(nftAddr, minerId);
         require(hashRate != 0, "Staking: Id not exist");
-        uint256 _consumption = repository.getConsumption(minerId);
+        uint256 _consumption = property.getConsumption(nftAddr, minerId);
         require(_consumption != 0, "Staking: Id not exist");
 
-        NFTMiner.safeTransferFrom(msg.sender, address(this), minerId);
+        IERC721(nftAddr).safeTransferFrom(msg.sender, address(this), minerId);
 
         nftStakes[minerId] = NftStake({
-            creator: msg.sender,
+            staker: msg.sender,
+            nftAddr: nftAddr,
             minerId: minerId,
             hashRate: hashRate,
             consumption: _consumption,
@@ -233,28 +240,29 @@ contract ZStaking is
     /**
      *   @notice withdraw nft from contract
      */
-    function batchWithdrawMiners(uint256[] calldata minerIds) external {
+    function batchWithdrawMiners(address[] calldata nftAddrs, uint256[] calldata minerIds) external {
         for (uint256 i = 0; i < minerIds.length; i++) {
-            withdrawMiner(minerIds[i]);
+            withdrawMiner(nftAddrs[i], minerIds[i]);
         }
     }
 
     /**
      *   @notice withdraw nft from contract
      */
-    function withdrawAllMiners() external {
+    function withdrawAllMiners(address nftAddr) external {
         uint256 amount = minerAmountOf(msg.sender);
         for (uint256 i = 0; i < amount; i++) {
-            withdrawMiner(minerOfOwnerByIndex(msg.sender, 0));
+            withdrawMiner(nftAddr, minerOfOwnerByIndex(msg.sender, 0));
         }
     }
 
     /**
      *   @notice withdraw nft from contract
      */
-    function withdrawMiner(uint256 minerId)
+    function withdrawMiner(address nftAddr, uint256 minerId)
         public
         updateReward(msg.sender)
+        onlyValidMiner(nftAddr)
         checkDeduction
         nonReentrant
     {
@@ -276,7 +284,7 @@ contract ZStaking is
 
         delete nftStakes[minerId];
 
-        NFTMiner.safeTransferFrom(address(this), msg.sender, minerId);
+        IERC721(nftAddr).safeTransferFrom(address(this), msg.sender, minerId);
         emit MinerWithdrawn(msg.sender, minerId);
     }
 
@@ -368,14 +376,14 @@ contract ZStaking is
         zFuel = IZfuel(_addr);
     }
 
-    function setNFTMiner(address _addr) external onlyOwner whenNotPaused {
+    function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
-        NFTMiner = IERC721(_addr);
+        minerList[_addr] = status;
     }
 
-    function setRepository(address _addr) external onlyOwner whenNotPaused {
+    function setProperty(address _addr) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
-        repository = INFTProperty(_addr);
+        property = INFTProperty(_addr);
     }
 
     function setZfuelRate(uint256 rate) external onlyOwner whenNotPaused {

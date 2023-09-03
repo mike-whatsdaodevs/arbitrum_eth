@@ -11,9 +11,14 @@ contract NFTProperty is INFTProperty, Manage {
         uint256 createTime;
     }
 
-    mapping(uint256 => Property) public property;
+    uint256 public defaultHashRate;
+    uint256 public defaultConsumption;
 
-    function addProperty(uint256 id, uint256[] calldata properties)
+
+    /// nft address => nft id ==> property
+    mapping(address => mapping(uint256 => Property)) public property;
+
+    function addProperty(address nftAddr, uint256 id, uint256[] calldata properties)
         external
         override
         onlyManage
@@ -23,40 +28,62 @@ contract NFTProperty is INFTProperty, Manage {
             properties[1],
             properties[2]
         );
-        property[id] = pro;
+        property[nftAddr][id] = pro;
         emit AddProperty(id);
     }
 
-    function removeProperty(uint256 id) external override onlyManage {
+    function removeProperty(address nftAddr, uint256 id) external override onlyManage {
         emit RemoveProperty(id);
-        delete property[id];
+        delete property[nftAddr][id];
     }
 
-    function getHashRate(uint256 id)
+    function getHashRate(address nftAddr, uint256 id)
         external
         view
         override
-        returns (uint256 hashRate)
-    {
-        return property[id].hashRate;
+        returns (uint256)
+    {   
+        // save gas
+        uint hashRate = property[nftAddr][id].hashRate;
+        if(hashRate == 0) {
+            return defaultHashRate;
+        }
+        return hashRate;
     }
 
-    function getConsumption(uint256 id)
+    function getConsumption(address nftAddr, uint256 id)
         external
         view
         override
-        returns (uint256 consumption)
-    {
-        return property[id].consumption;
+        returns (uint256)
+    {   
+        // save gas
+        uint256 consumption = property[nftAddr][id].consumption;
+        if(consumption == 0) {
+            return defaultConsumption;
+        }
+        return consumption;
     }
 
-    function getCreateTime(uint256 id)
+    function getCreateTime(address nftAddr, uint256 id)
         external
         view
         override
         returns (uint256 time)
     {
-        return property[id].createTime;
+        return property[nftAddr][id].createTime;
+    }
+
+    function setDefaultHashRate(uint256 newHashRate) external onlyManage {
+        require(newHashRate != 0, "E: hashrate can't be zero");
+
+        defaultHashRate = newHashRate;
+    }
+
+    function setDefaultConsumption(uint256 newConsumption) external onlyManage {
+        require(newConsumption != 0, "E: consumption can't be zero");
+
+        defaultConsumption = newConsumption;
     }
 
     event AddProperty(uint256 indexed id);
