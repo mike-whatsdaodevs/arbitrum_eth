@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./owner/Manage.sol";
 
-contract SFuelSwap is ReentrancyGuard, Manage {
+contract BFuelSwap is ReentrancyGuard, Manage {
     using SafeMath for uint256;
 
     IERC20 payToken;
@@ -19,7 +19,7 @@ contract SFuelSwap is ReentrancyGuard, Manage {
     // how much erc20 to 1 mfuel
     uint256 public price = 1E20;
 
-    uint256 constant _1SFuel = 1E18;
+    uint256 constant _1BFuel = 1E18;
 
      // how much ETH to 1 mfuel
     uint256 public ethprice;
@@ -50,7 +50,7 @@ contract SFuelSwap is ReentrancyGuard, Manage {
      */ 
     function swap(uint256 payamount) external nonReentrant {
         payamount = payamount.mul(1E18);
-        uint256 mfuelAmount = payamount.mul(price).div(_1SFuel);
+        uint256 mfuelAmount = payamount.mul(price).div(_1BFuel);
         payToken.transferFrom(msg.sender, wallet, payamount);
         mfuel.transfer(msg.sender, mfuelAmount);
         emit Swap(msg.sender, price, payamount, mfuelAmount);
@@ -59,7 +59,7 @@ contract SFuelSwap is ReentrancyGuard, Manage {
     // @dev receive eth to swap Mfuel
     function swapForETH() public payable nonReentrant {
         uint256 payamount = msg.value;
-        uint256 mfuelAmount = payamount.mul(ethprice).div(_1SFuel);
+        uint256 mfuelAmount = payamount.mul(ethprice).div(_1BFuel);
         mfuel.transfer(msg.sender, mfuelAmount);
         wallet.transfer(payamount);
         emit Swap(msg.sender, ethprice, payamount, mfuelAmount);

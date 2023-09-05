@@ -6,6 +6,6 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
-interface ISFuel is IERC20 {
+interface IBFuel is IERC20 {
     function burn(uint256 amount) external returns (bool);
 }

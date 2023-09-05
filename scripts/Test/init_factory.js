@@ -13,11 +13,31 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  let miner1_address = process.env.LOCAL_MINER1;
-  let miner2_address = process.env.LOCAL_MINER2;
-  let miner3_address = process.env.LOCAL_MINER3;
-  let property_address = process.env.LOCAL_PROPERTY;
-  let factory_address = process.env.LOCAL_FACTORY;
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
+
+
+  let miner1_address;
+  let miner2_address;
+  let miner3_address;
+  let property_address;
+  let factory_address;
+  switch (network) {
+  case 5 :
+    miner1_address = process.env.G_MINER1;
+    miner2_address = process.env.G_MINER2;
+    miner3_address = process.env.G_MINER3;
+    property_address = process.env.G_PROPERTY;
+    factory_address = process.env.G_FACTORY;
+    break;
+  default: 
+    miner1_address = process.env.LOCAL_MINER1;
+    miner2_address = process.env.LOCAL_MINER2;
+    miner3_address = process.env.LOCAL_MINER3;
+    property_address = process.env.LOCAL_PROPERTY;
+    factory_address = process.env.LOCAL_FACTORY;
+  }
+  console.log("miner1 address is:", miner1_address);
 
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
   let addManageTx1 = await miner1.addManage(factory_address);

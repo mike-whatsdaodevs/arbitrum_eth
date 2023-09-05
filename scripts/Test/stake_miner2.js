@@ -13,17 +13,29 @@ async function main() {
   const [deployer] = await ethers.getSigners()
 
   console.log('deployer:' + deployer.address)
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
 
-  // let staking_address = process.env.STAKING_TEST
-  // let miner_address = process.env.MINER_TEST
-  // let zfuel_address = process.env.ZWATT_TEST
-
-  let staking_address = process.env.LOCAL_PROXY;
-  let miner1_address = process.env.LOCAL_MINER1;
-  let miner2_address = process.env.LOCAL_MINER2;
-  let sfuel_address = process.env.LOCAL_SFUEL;
-  let wallet = process.env.WALLET
-
+  let miner1_address;
+  let miner2_address;
+  let miner3_address;
+  let staking_address;
+  let sfuel_address;
+  switch (network) {
+  case 5 :
+    miner1_address = process.env.G_MINER1;
+    miner2_address = process.env.G_MINER2;
+    miner3_address = process.env.G_MINER3;
+    staking_address = process.env.G_PROXY;
+    sfuel_address = process.env.G_SFUEL;
+    break;
+  default: 
+    miner1_address = process.env.LOCAL_MINER1;
+    miner2_address = process.env.LOCAL_MINER2;
+    miner3_address = process.env.LOCAL_MINER3;
+    staking_address = process.env.LOCAL_PROXY;
+    sfuel_address = process.env.G_SFUEL;
+  }
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
   const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
@@ -49,7 +61,7 @@ async function main() {
   );
 
   let ids = Array(
-    1, 2, 3, 4, 5
+    11, 12, 13, 14, 15
   );
 
   let stakingTx = await staking.batchStake(nfts, ids);

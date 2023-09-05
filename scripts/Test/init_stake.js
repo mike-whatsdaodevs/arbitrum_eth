@@ -14,11 +14,29 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  let staking_address = process.env.LOCAL_PROXY;
-  let miner1_address = process.env.LOCAL_MINER1;
-  let miner2_address = process.env.LOCAL_MINER2;
-  let miner3_address = process.env.LOCAL_MINER3;
-  let btcc_address = process.env.LOCAL_BTCC
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
+
+  let staking_address;
+  let miner1_address;
+  let miner2_address;
+  let miner3_address;
+  let btcc_address;
+  switch (network) {
+  case 5:
+    staking_address = process.env.G_PROXY;
+    miner1_address = process.env.G_MINER1;
+    miner2_address = process.env.G_MINER2;
+    miner3_address = process.env.G_MINER3;
+    btcc_address = process.env.G_BTCC
+    break;
+  default:
+    staking_address = process.env.LOCAL_PROXY;
+    miner1_address = process.env.LOCAL_MINER1;
+    miner2_address = process.env.LOCAL_MINER2;
+    miner3_address = process.env.LOCAL_MINER3;
+    btcc_address = process.env.LOCAL_BTCC
+  }
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const miner = await ethers.getContractAt('NFTMiner', miner1_address, signer)
@@ -45,7 +63,7 @@ async function main() {
   let setNFTMinerTx3 = await staking.setNFTStatus(miner3_address, true);
   await setNFTMinerTx3.wait();
 
-
+  console.log("done");
 }
 
 main()

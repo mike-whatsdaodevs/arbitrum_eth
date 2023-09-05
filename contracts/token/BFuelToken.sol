@@ -3,9 +3,9 @@
 pragma solidity 0.8.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../interface/ISFuel.sol";
+import "../interface/IBFuel.sol";
 
-contract SFuelToken is ERC20, Ownable {
+contract BFuelToken is ERC20, Ownable {
     mapping(address => bool) private _isExcludedFromFee;
 
     address public pool;
@@ -14,7 +14,7 @@ contract SFuelToken is ERC20, Ownable {
     uint256 public constant DENOMINATOR = 100;
     uint256 public sellFee = 0;
 
-    constructor(address _owner, address _pair) ERC20("SFUEL", "SFUEL") {
+    constructor(address _owner, address _pair) ERC20("BFUEL", "BFUEL") {
         super._mint(_owner, 1e27);
         pool = msg.sender;
         pair = _pair;

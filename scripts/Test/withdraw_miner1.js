@@ -14,15 +14,32 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  let staking_address = process.env.LOCAL_PROXY;
-  let miner1_address = process.env.LOCAL_MINER1;
-  let miner2_address = process.env.LOCAL_MINER2;
-  let miner3_address = process.env.LOCAL_MINER3;
-  let sfuel_address = process.env.LOCAL_SFUEL;
-  let wallet = process.env.WALLET
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
+
+  let miner1_address;
+  let miner2_address;
+  let miner3_address;
+  let staking_address;
+  let sfuel_address;
+  switch (network) {
+  case 5 :
+    miner1_address = process.env.G_MINER1;
+    miner2_address = process.env.G_MINER2;
+    miner3_address = process.env.G_MINER3;
+    staking_address = process.env.G_PROXY;
+    sfuel_address = process.env.G_SFUEL;
+    break;
+  default: 
+    miner1_address = process.env.LOCAL_MINER1;
+    miner2_address = process.env.LOCAL_MINER2;
+    miner3_address = process.env.LOCAL_MINER3;
+    staking_address = process.env.LOCAL_PROXY;
+    sfuel_address = process.env.LOCAL_SFUEL;
+  }
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
   const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
   // let withdrawAllMinersTx = await staking.withdrawAllMiners()
@@ -42,7 +59,6 @@ async function main() {
   console.log('rewardTx: ' + rewardTx.hash)
   await rewardTx.wait()
   return;
-
   // let minerAmountOf = await staking.minerAmountOf(deployer.address)
   // console.log('minerAmountOf: ' + minerAmountOf)
 
@@ -70,9 +86,11 @@ async function main() {
   console.log('approveTokenTx:' + approveTokenTx.hash)
   await approveTokenTx.wait()
 
-  let withdrawTx = await staking.withdrawMiner(miner1_address, 1)
+  let withdrawTx = await staking.withdrawMiner(miner3_address, 11)
   console.log('withdrawTx:' + withdrawTx.hash)
   await withdrawTx.wait()
+
+
 }
 
 main()

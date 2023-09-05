@@ -14,11 +14,21 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  // let staking_address = process.env.STAKING_TEST
-  // let btcz_address = process.env.BTCZ_TEST
+  
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
 
-  let staking_address = process.env.LOCAL_PROXY
-  let btcc_address = process.env.LOCAL_BTCC;
+  let staking_address;
+  let btcc_address;
+  switch (network) {
+  case 5:
+    staking_address = process.env.G_PROXY;
+    btcc_address = process.env.G_BTCC
+    break;
+  default:
+    staking_address = process.env.LOCAL_PROXY;
+    btcc_address = process.env.LOCAL_BTCC
+  }
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const token = await ethers.getContractAt('BTCCToken', btcc_address, signer)

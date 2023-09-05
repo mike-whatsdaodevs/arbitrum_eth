@@ -14,7 +14,7 @@ import {MathUpgradeable as Math} from "@openzeppelin/contracts-upgradeable/utils
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {INFTProperty} from "./interface/INFTProperty.sol";
-import {ISFuel} from "./interface/ISFuel.sol";
+import {IBFuel} from "./interface/IBFuel.sol";
 
 contract ZStaking is 
     ReentrancyGuardUpgradeable, 
@@ -43,7 +43,7 @@ contract ZStaking is
     /* ========== STATE VARIABLES ========== */
     // addreses
     IERC20 public btcc;
-    ISFuel public sFuel;
+    IBFuel public bFuel;
     IERC721 public NFTMiner;
 
     uint256 private _totalHashRate;
@@ -51,7 +51,7 @@ contract ZStaking is
 
     address public fuelReceiver;
     uint256 public lastUpdateTime;
-    uint256 public sFuelRate;
+    uint256 public bFuelRate;
     uint256 public rewardRate;
     uint256 public consumptionRate;
     uint256 public periodFinish;
@@ -91,7 +91,7 @@ contract ZStaking is
 
     function initialize(
         address _btcc,
-        address _sFuelToken,
+        address _bFuelToken,
         address _property,
         uint256 _rewardsDuration
     ) external initializer {
@@ -103,11 +103,11 @@ contract ZStaking is
 
         require(_rewardsDuration != 0, "rewardsDuration is zero");
         btcc = IERC20(_btcc);
-        sFuel = ISFuel(_sFuelToken);
+        bFuel = IBFuel(_bFuelToken);
         property = INFTProperty(_property);
         rewardsDuration = _rewardsDuration;
 
-        sFuelRate = 50;
+        bFuelRate = 50;
         BASE_DIVIDER = 100;
         FIRST_EPOCH_REWARDS = 50 * 6 * 24 * 365 * 4 ether;
 
@@ -299,9 +299,9 @@ contract ZStaking is
     {
         uint256 reward = rewards[msg.sender];
         uint256 currentConsumption = consumptions[msg.sender];
-        uint256 sFuelAmount = sFuel.balanceOf(msg.sender);
+        uint256 bFuelAmount = bFuel.balanceOf(msg.sender);
         require(
-            sFuelAmount >= currentConsumption,
+            bFuelAmount >= currentConsumption,
             "ZWatt Insufficient balance"
         );
         _consumptionAllOf[msg.sender] = _consumptionAllOf[msg.sender].add(
@@ -309,17 +309,17 @@ contract ZStaking is
         );
         _totalConsumption = _totalConsumption.add(currentConsumption);
         if (reward > 0) {
-            uint256 burnAmount = currentConsumption.mul(sFuelRate).div(
+            uint256 burnAmount = currentConsumption.mul(bFuelRate).div(
                 BASE_DIVIDER
             );
-            sFuel.transferFrom(
+            bFuel.transferFrom(
                 msg.sender,
                 fuelReceiver,
                 currentConsumption.sub(burnAmount)
             );
             //mFuel burn
-            sFuel.transferFrom(msg.sender, address(this), burnAmount);
-            sFuel.burn(burnAmount);
+            bFuel.transferFrom(msg.sender, address(this), burnAmount);
+            bFuel.burn(burnAmount);
 
             rewards[msg.sender] = 0;
             consumptions[msg.sender] = 0;
@@ -373,9 +373,9 @@ contract ZStaking is
         return _holderMiners[nftAddr][owner].at(index);
     }
 
-    function setSFuelAddress(address _addr) external onlyOwner whenNotPaused {
+    function setBFuelAddress(address _addr) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
-        sFuel = ISFuel(_addr);
+        bFuel = IBFuel(_addr);
     }
 
     function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {
@@ -388,10 +388,10 @@ contract ZStaking is
         property = INFTProperty(_addr);
     }
 
-    function setSFuelRate(uint256 rate) external onlyOwner whenNotPaused {
+    function setBFuelRate(uint256 rate) external onlyOwner whenNotPaused {
         require(rate > 0, "rate is zero");
-        sFuelRate = rate;
-        emit SetSFuelRate(rate, msg.sender);
+        bFuelRate = rate;
+        emit SetBFuelRate(rate, msg.sender);
     }
 
     function setFuelReceiver(address _address)
@@ -493,6 +493,6 @@ contract ZStaking is
     event RewardPaid(address indexed user, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
-    event SetSFuelRate(uint256 rate, address user);
+    event SetBFuelRate(uint256 rate, address user);
     event SetFuelReceiver(address recevier, address user);
 }

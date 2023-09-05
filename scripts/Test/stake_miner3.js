@@ -11,8 +11,8 @@ async function main() {
   console.log('NetWorks Name is ', (await ethers.provider.getNetwork()).name)
 
   const [deployer] = await ethers.getSigners()
-  console.log('deployer:' + deployer.address)
 
+  console.log('deployer:' + deployer.address)
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
@@ -36,22 +36,28 @@ async function main() {
     staking_address = process.env.LOCAL_PROXY;
     sfuel_address = process.env.G_SFUEL;
   }
-
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
   const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
-  let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)
+
+  // let transferOwnership_tx = await staking.transferOwnership(wallet)
+
+  // console.log(transferOwnership_tx.hash);
+
+  // await transferOwnership_tx.wait();
+    
+  let approve_miner_Tx = await miner3.setApprovalForAll(staking_address, true)
   await approve_miner_Tx.wait();
   console.log('approveTx:' + approve_miner_Tx.hash)
 
   // // // // staking
   let nfts = Array(
-    miner1_address,
-    miner1_address,
-    miner1_address,
-    miner1_address,
-    miner1_address,
+    miner3_address,
+    miner3_address,
+    miner3_address,
+    miner3_address,
+    miner3_address,
   );
 
   let ids = Array(

@@ -19,9 +19,14 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   console.log('deployer:' + deployer.address)
 
+  let overrides = {
+    gasPrice: 20000
+  }
+
   const SFuelToken = await hre.ethers.getContractFactory('SFuelToken')
-  const sfuel = await SFuelToken.deploy(deployer.address, deployer.address)
+  const sfuel = await SFuelToken.deploy(deployer.address, deployer.address, overrides)
   await sfuel.deployed()
+  console.log("sfuel address :",sfuel.address);
 
   const BTCCToken = await hre.ethers.getContractFactory('BTCCToken')
   const btcc = await BTCCToken.deploy(deployer.address)

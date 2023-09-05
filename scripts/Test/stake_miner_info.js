@@ -15,14 +15,29 @@ async function main() {
   console.log('deployer:' + deployer.address)
 
   let my_address = deployer.address;
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
 
-  let staking_address = process.env.LOCAL_PROXY;
-  let miner1_address = process.env.LOCAL_MINER1;
-  let miner2_address = process.env.LOCAL_MINER2;
-  let miner3_address = process.env.LOCAL_MINER3;
-  let sfuel_address = process.env.LOCAL_SFUEL;
-  let wallet = process.env.WALLET
-
+  let miner1_address;
+  let miner2_address;
+  let miner3_address;
+  let staking_address;
+  let sfuel_address;
+  switch (network) {
+  case 5 :
+    miner1_address = process.env.G_MINER1;
+    miner2_address = process.env.G_MINER2;
+    miner3_address = process.env.G_MINER3;
+    staking_address = process.env.G_PROXY;
+    sfuel_address = process.env.G_SFUEL;
+    break;
+  default: 
+    miner1_address = process.env.LOCAL_MINER1;
+    miner2_address = process.env.LOCAL_MINER2;
+    miner3_address = process.env.LOCAL_MINER3;
+    staking_address = process.env.LOCAL_PROXY;
+    sfuel_address = process.env.LOCAL_SFUEL;
+  }
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
   const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
@@ -53,6 +68,23 @@ async function main() {
 
   let myHashRate = await staking.hashRateOf(my_address)
   console.log('myHashRate is: ', myHashRate)
+
+  let rewardPerToken = await staking.rewardPerToken();
+  console.log("rewardPerToken is", rewardPerToken);
+
+  let consumptionPerToken = await staking.consumptionPerToken();
+  console.log("consumptionPerToken is", consumptionPerToken);
+
+  let userRewardPerHashRatePaid = await staking.userRewardPerHashRatePaid(my_address);
+  console.log("userRewardPerHashRatePaid is", userRewardPerHashRatePaid)
+
+  let myRewards = await staking.rewards(my_address);
+  console.log("my rewards is", myRewards);
+
+  let lastTimeRewardApplicable = await staking.lastTimeRewardApplicable();
+  let periodFinish = await staking.periodFinish();
+  console.log("lastTimeRewardApplicable is,", lastTimeRewardApplicable);
+  console.log("periodFinish is,", periodFinish);
 
 
   // // amount
