@@ -10,11 +10,14 @@ import "./owner/Operator.sol";
 
 contract NFTFactory is Pausable, Ownable {
     mapping(address => bool) public minerList;
+    mapping(address => uint256[]) public propertiesList;
+    mapping(address => mapping(address => uint256)) public whitelist;
 
     modifier onlyValidMiner(address miner) {
         require(minerList[miner] == true, "E: miner is not valid");
         _;
     }
+
 
     INFTProperty public property;
 
@@ -30,8 +33,9 @@ contract NFTFactory is Pausable, Ownable {
         _unpause();
     }
 
-    function setNFTMiner(address minerAddress, bool status) external onlyOwner {
+    function setNFTMiner(address minerAddress, bool status, uint256[] calldata properties) external onlyOwner {
         minerList[minerAddress] = status;
+        propertiesList[minerAddress] = properties;
     }
 
     function setProperty(address propertyAddress) external onlyOwner {
@@ -39,21 +43,17 @@ contract NFTFactory is Pausable, Ownable {
         emit SetProperty(propertyAddress);
     }
 
-    function buildMiner(address nftAddr, uint256[] calldata properties, address target)
-        public
-        whenNotPaused
-        onlyOwner
-        onlyValidMiner(nftAddr)
+    function buildMiner(address nftAddr, address target)
+        internal
         returns (uint256)
     {
         uint256 id = IMinerNFT(nftAddr).mint(target);
-        property.addProperty(nftAddr, id, properties);
+        property.addProperty(nftAddr, id, propertiesList[nftAddr]);
         return id;
     }
 
     function batchBuildMiner(
         address nftAddr, 
-        uint256[] calldata properties, 
         address target, 
         uint256 amount
     )
@@ -67,10 +67,32 @@ contract NFTFactory is Pausable, Ownable {
 
         uint256[] memory ids = new uint256[](amount);
         for(uint i = 0; i < amount; i ++) {
-            ids[i] = buildMiner(nftAddr, properties, target);
+            ids[i] = buildMiner(nftAddr, target);
         }
         return ids;
     }   
+
+    function addWhiteList(address addr, address nftAddr, uint256 amount) external onlyOwner {
+        require(addr != address(0), "E: address can't be zero");
+
+        whitelist[nftAddr][addr] += amount;
+    }
+
+    function mintWhiteList(
+        address nftAddr, 
+        uint256 amount
+    ) 
+        external
+        whenNotPaused
+        onlyValidMiner(nftAddr) 
+    {
+        uint256 whitelistAmount = whitelist[nftAddr][msg.sender];
+        require(amount <= whitelistAmount, "E: amount is too large");
+
+        for(uint i = 0; i < amount; i ++) {
+            buildMiner(nftAddr, msg.sender);
+        }
+    }
 
     /* ========== EVENTS ========== */
     event SetNFTMiner(address indexed minerAddress);
