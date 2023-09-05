@@ -21,26 +21,26 @@ async function main() {
   let miner2_address;
   let miner3_address;
   let staking_address;
-  let sfuel_address;
+  let bfuel_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
-    sfuel_address = process.env.G_SFUEL;
+    bfuel_address = process.env.G_SFUEL;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     staking_address = process.env.LOCAL_PROXY;
-    sfuel_address = process.env.LOCAL_SFUEL;
+    bfuel_address = process.env.LOCAL_SFUEL;
   }
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
-  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
+  const bfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
 
   // let withdrawAllMinersTx = await staking.withdrawAllMiners()
   // console.log('withdrawAllMinersTx:' + withdrawAllMinersTx.hash)
@@ -82,7 +82,7 @@ async function main() {
   // console.log('consumption: ' , ethers.utils.formatEther(consumption1))
 
   // approve
-  let approveTokenTx = await sfuel.approve(staking_address, ethers.constants.MaxUint256)
+  let approveTokenTx = await bfuel.approve(staking_address, ethers.constants.MaxUint256)
   console.log('approveTokenTx:' + approveTokenTx.hash)
   await approveTokenTx.wait()
 

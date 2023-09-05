@@ -23,10 +23,10 @@ async function main() {
     gasPrice: 20000
   }
 
-  const SFuelToken = await hre.ethers.getContractFactory('SFuelToken')
-  const sfuel = await SFuelToken.deploy(deployer.address, deployer.address, overrides)
-  await sfuel.deployed()
-  console.log("sfuel address :",sfuel.address);
+  const BFuelToken = await hre.ethers.getContractFactory('BFuelToken')
+  const bfuel = await BFuelToken.deploy(deployer.address, deployer.address)
+  await bfuel.deployed()
+  console.log("bfuel address :",bfuel.address);
 
   const BTCCToken = await hre.ethers.getContractFactory('BTCCToken')
   const btcc = await BTCCToken.deploy(deployer.address)
@@ -60,7 +60,7 @@ async function main() {
   // const stakingObj = await hre.ethers.getContractAt('ZStaking', staking, signer)
   const initialize_data = await staking.populateTransaction.initialize(
     btcc.address,
-    sfuel.address,
+    bfuel.address,
     property.address,
     rewardsDuration
   );
@@ -75,7 +75,7 @@ async function main() {
   const marketPlace = await MarketPlace.deploy(busdAddress, btcc.address, nftMiner1.address, '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
   await marketPlace.deployed()
 
-  console.log("sfuel address :",sfuel.address);
+  console.log("bfuel address :",bfuel.address);
   console.log("btcc address :",btcc.address);
 
   console.log('NFTMiner1 deployed to:', nftMiner1.address)

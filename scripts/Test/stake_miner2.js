@@ -20,25 +20,21 @@ async function main() {
   let miner2_address;
   let miner3_address;
   let staking_address;
-  let sfuel_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
-    sfuel_address = process.env.G_SFUEL;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     staking_address = process.env.LOCAL_PROXY;
-    sfuel_address = process.env.G_SFUEL;
   }
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
   const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
-  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
 
   // let transferOwnership_tx = await staking.transferOwnership(wallet)
