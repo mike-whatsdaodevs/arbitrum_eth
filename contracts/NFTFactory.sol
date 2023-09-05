@@ -92,6 +92,8 @@ contract NFTFactory is Pausable, Ownable {
         for(uint i = 0; i < amount; i ++) {
             buildMiner(nftAddr, msg.sender);
         }
+
+        whitelist[nftAddr][msg.sender] -= amount;
     }
 
     /* ========== EVENTS ========== */

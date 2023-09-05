@@ -39,29 +39,11 @@ async function main() {
     factory_address = process.env.LOCAL_FACTORY;
   }
 
+  let nftAddr = miner1_address;
   const factory = await ethers.getContractAt('NFTFactory', factory_address, signer)
 
-  let property1 = Array(
-      1_000,
-      10, 
-      1
-  );
-
-
-  let property2 = Array(
-      10_000,
-      100, 
-      2
-  );
-
-  let property3 = Array(
-      100_000,
-      1000, 
-      3
-  );
-
   let receiver = deployer.address;
-  let buildMinerTx = await factory.batchBuildMiner(miner3_address, property3, receiver, 10);
+  let buildMinerTx = await factory.batchBuildMiner(nftAddr, receiver, 10);
   await buildMinerTx.wait();   
 
 

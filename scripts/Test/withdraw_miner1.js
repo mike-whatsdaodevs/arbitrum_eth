@@ -38,8 +38,9 @@ async function main() {
     bfuel_address = process.env.LOCAL_SFUEL;
   }
 
+  let nftAddr = miner1_address;
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
+  const miner = await ethers.getContractAt('NFTMiner', nftAddr, signer)
   const bfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
 
   // let withdrawAllMinersTx = await staking.withdrawAllMiners()
@@ -86,7 +87,7 @@ async function main() {
   console.log('approveTokenTx:' + approveTokenTx.hash)
   await approveTokenTx.wait()
 
-  let withdrawTx = await staking.withdrawMiner(miner3_address, 11)
+  let withdrawTx = await staking.withdrawMiner(miner, 11)
   console.log('withdrawTx:' + withdrawTx.hash)
   await withdrawTx.wait()
 

@@ -38,8 +38,10 @@ async function main() {
     staking_address = process.env.LOCAL_PROXY;
     sfuel_address = process.env.LOCAL_SFUEL;
   }
+
+  let nftAddr = miner1_address;
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const miner = await ethers.getContractAt('NFTMiner', nftAddr, signer)
   const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
 
   // // // // // staking

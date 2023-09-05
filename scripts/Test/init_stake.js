@@ -39,12 +39,22 @@ async function main() {
   }
 
   const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
-  const miner = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
+  const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
+  const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
   const token = await ethers.getContractAt('BTCCToken', btcc_address, signer)
 
-  let approve_miner_Tx = await miner.setApprovalForAll(staking_address, true)
-  console.log('approveTx:' + approve_miner_Tx.hash)
-  await approve_miner_Tx.wait()
+  let approve_miner1_Tx = await miner1.setApprovalForAll(staking_address, true)
+  console.log('approveTx:' + approve_miner1_Tx.hash)
+  await approve_miner1_Tx.wait()
+
+  let approve_miner2_Tx = await miner2.setApprovalForAll(staking_address, true)
+  console.log('approveTx:' + approve_miner2_Tx.hash)
+  await approve_miner2_Tx.wait()
+
+  let approve_miner3_Tx = await miner3.setApprovalForAll(staking_address, true)
+  console.log('approveTx:' + approve_miner3_Tx.hash)
+  await approve_miner3_Tx.wait()
 
   let setSFuelReciveerTx = await staking.setFuelReceiver(deployer.address);
   await setSFuelReciveerTx.wait();

@@ -1,4 +1,5 @@
 const { ethers, run } = require('hardhat')
+require('dotenv').config({ path: '.env' })
 
 async function main() {
   await run('compile')
@@ -37,54 +38,23 @@ async function main() {
     property_address = process.env.LOCAL_PROPERTY;
     factory_address = process.env.LOCAL_FACTORY;
   }
-  console.log("miner1 address is:", miner1_address);
 
-  let property1 = Array(
-      1_000,
-      10, 
-      1
-  );
-
-
-  let property2 = Array(
-      10_000,
-      100, 
-      2
-  );
-
-  let property3 = Array(
-      100_000,
-      1000, 
-      3
-  );
-
-  const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
-  let addManageTx1 = await miner1.addManage(factory_address);
-  await addManageTx1.wait();
-
-  const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
-  let addManageTx2 = await miner2.addManage(factory_address);
-  await addManageTx2.wait();
-
-  const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
-  let addManageTx3 = await miner3.addManage(factory_address);
-  await addManageTx3.wait();
-
-  const property = await ethers.getContractAt('NFTProperty', property_address, signer)
-  let addManageTx4 = await property.addManage(factory_address);
-  await addManageTx4.wait();
-
+  let nftAddr = miner1_address;
   const factory = await ethers.getContractAt('NFTFactory', factory_address, signer)
-  let setNFTMinerTx1 = await factory.setNFTMiner(miner1_address, true, property1);
-  await setNFTMinerTx1.wait();
 
-  let setNFTMinerTx2 = await factory.setNFTMiner(miner2_address, true, property2);
-  await setNFTMinerTx2.wait();
+  let receiver = deployer.address;
 
-  let setNFTMinerTx3 = await factory.setNFTMiner(miner3_address, true, property3);
-  await setNFTMinerTx3.wait();
+  let addWhiteListTx = await factory.addWhiteList(receiver, nftAddr, 1);
+  await addWhiteListTx.wait();
 
-  console.log("done");
+  let amount = await factory.whitelist(nftAddr, receiver);
+  console.log("white list is:", amount);
+
+  let mintTx = await factory.mintWhiteList(nftAddr, 2);
+  await mintTx.wait(); 
+
+  console.log("done");  
+
 
 }
 
