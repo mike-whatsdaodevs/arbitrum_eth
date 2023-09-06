@@ -52,12 +52,13 @@ async function main() {
   const factory = await NFTFactory.deploy(property.address)
   await factory.deployed()
 
-  const ZStaking = await hre.ethers.getContractFactory('ZStaking')
-  const staking = await ZStaking.deploy()
+  /////// stakeing
+  const Staking = await hre.ethers.getContractFactory('Staking')
+  const staking = await Staking.deploy()
   await staking.deployed()
 
   let rewardsDuration = 4 * 365 * 60 * 60 * 24
-  // const stakingObj = await hre.ethers.getContractAt('ZStaking', staking, signer)
+  // const stakingObj = await hre.ethers.getContractAt('Staking', staking, signer)
   const initialize_data = await staking.populateTransaction.initialize(
     btcc.address,
     bfuel.address,
@@ -65,10 +66,26 @@ async function main() {
     rewardsDuration
   );
   console.log("initialize data is",initialize_data)
-
   const COD20Proxy = await hre.ethers.getContractFactory('COD20Proxy')
   let proxy = await COD20Proxy.deploy(staking.address, initialize_data.data);
   await proxy.deployed()
+
+  ////  stakingV1
+  const StakingV1 = await hre.ethers.getContractFactory('StakingV1')
+  const stakingV1 = await StakingV1.deploy()
+  await stakingV1.deployed()
+
+  // const stakingObj = await hre.ethers.getContractAt('Staking', staking, signer)
+  const initialize_dataV1 = await stakingV1.populateTransaction.initialize(
+    bfuel.address,
+    property.address,
+    rewardsDuration
+  );
+  console.log("initialize_dataV1 data is",initialize_dataV1)
+
+  const COD20ProxyV1 = await hre.ethers.getContractFactory('COD20Proxy')
+  let proxyV1 = await COD20ProxyV1.deploy(stakingV1.address, initialize_dataV1.data);
+  await proxyV1.deployed()
 
   let busdAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
   const MarketPlace = await hre.ethers.getContractFactory('MarketPlace')
@@ -86,7 +103,7 @@ async function main() {
   console.log('NFTFactory deployed to:', factory.address)
   console.log('MarketPlace deployed to:', marketPlace.address)
   console.log('Proxy deployed to:', proxy.address)
-
+  console.log('ProxyV1 deployed to:', proxyV1.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

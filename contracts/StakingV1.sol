@@ -107,7 +107,6 @@ contract StakingV1 is
         bFuelRate = 50;
         BASE_DIVIDER = 100;
         FIRST_EPOCH_REWARDS = 50 * 6 * 24 * 365 * 4 ether;
-
     }
 
     // Open mining pool

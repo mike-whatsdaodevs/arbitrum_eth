@@ -20,21 +20,25 @@ async function main() {
   let miner2_address;
   let miner3_address;
   let staking_address;
+  let stakingV1_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
+    stakingV1_address = process.env.G_PROXYV1;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     staking_address = process.env.LOCAL_PROXY;
+    stakingV1_address = process.env.LOCAL_PROXYV1;
   }
 
-  const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
+  staking_address = stakingV1_address;
+  const staking = await ethers.getContractAt('Staking', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
 
   let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)
@@ -51,7 +55,7 @@ async function main() {
   );
 
   let ids = Array(
-    11, 12, 13, 14, 15
+    1, 2, 3, 4, 5
   );
 
   let stakingTx = await staking.batchStake(nfts, ids);

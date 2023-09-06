@@ -22,29 +22,41 @@ async function main() {
   let miner2_address;
   let miner3_address;
   let staking_address;
-  let sfuel_address;
+  let stakingV1_address;
+  let bfuel_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
-    sfuel_address = process.env.G_SFUEL;
+    stakingV1_address = process.env.G_PROXYV1;
+    bfuel_address = process.env.G_BFUEL;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     staking_address = process.env.LOCAL_PROXY;
-    sfuel_address = process.env.LOCAL_SFUEL;
+    stakingV1_address = process.env.LOCAL_PROXYV1;
+    bfuel_address = process.env.LOCAL_BFUEL;
   }
 
   let nftAddr = miner1_address;
-  const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
+  staking_address = stakingV1_address;
+  const staking = await ethers.getContractAt('Staking', staking_address, signer)
   const miner = await ethers.getContractAt('NFTMiner', nftAddr, signer)
-  const sfuel = await ethers.getContractAt('SFuelToken', sfuel_address, signer)
+  const sfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
 
   // // // // // staking
+
+  // const tx = await signer.sendTransaction({
+  //   to: staking_address,
+  //   value: ethers.utils.parseEther("200.0")
+  // });
+  // await tx.wait();
+  // console.log("done");
+  // return;
 
   let rewardRate = await staking.rewardRate()
   console.log('rewardRate: ' + rewardRate)

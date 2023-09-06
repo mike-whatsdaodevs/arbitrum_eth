@@ -18,6 +18,7 @@ async function main() {
   console.log(network);
 
   let staking_address;
+  let stakingV1_address;
   let miner1_address;
   let miner2_address;
   let miner3_address;
@@ -25,6 +26,7 @@ async function main() {
   switch (network) {
   case 5:
     staking_address = process.env.G_PROXY;
+    stakingV1_address = process.env.G_PROXYV1;
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
@@ -32,13 +34,15 @@ async function main() {
     break;
   default:
     staking_address = process.env.LOCAL_PROXY;
+    stakingV1_address = process.env.LOCAL_PROXYV1;
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     btcc_address = process.env.LOCAL_BTCC
   }
 
-  const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
+  staking_address = stakingV1_address;
+  const staking = await ethers.getContractAt('Staking', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
   const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
   const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)

@@ -21,6 +21,7 @@ async function main() {
   let miner2_address;
   let miner3_address;
   let staking_address;
+  let stakingV1_address;
   let bfuel_address;
   switch (network) {
   case 5 :
@@ -28,18 +29,20 @@ async function main() {
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
-    bfuel_address = process.env.G_SFUEL;
+    stakingV1_address = process.env.G_PROXYV1;
+    bfuel_address = process.env.G_BFUEL;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
-    staking_address = process.env.LOCAL_PROXY;
-    bfuel_address = process.env.LOCAL_SFUEL;
+    stakingV1_address = process.env.LOCAL_PROXYV1;
+    bfuel_address = process.env.LOCAL_BFUEL;
   }
 
   let nftAddr = miner1_address;
-  const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
+  staking_address = stakingV1_address;
+  const staking = await ethers.getContractAt('Staking', staking_address, signer)
   const miner = await ethers.getContractAt('NFTMiner', nftAddr, signer)
   const bfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
 
@@ -56,7 +59,7 @@ async function main() {
   let consumption = await staking.consumption(deployer.address)
   console.log('consumption: ' , ethers.utils.formatEther(consumption));
 
-  let rewardTx = await staking.getReward()
+   let rewardTx = await staking.getReward()
   console.log('rewardTx: ' + rewardTx.hash)
   await rewardTx.wait()
   return;
@@ -87,9 +90,11 @@ async function main() {
   console.log('approveTokenTx:' + approveTokenTx.hash)
   await approveTokenTx.wait()
 
-  let withdrawTx = await staking.withdrawMiner(miner, 11)
+  let withdrawTx = await staking.withdrawMiner(nftAddr, 1)
   console.log('withdrawTx:' + withdrawTx.hash)
   await withdrawTx.wait()
+
+
 
 
 }
