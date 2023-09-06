@@ -16,7 +16,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {INFTProperty} from "./interface/INFTProperty.sol";
 import {IBFuel} from "./interface/IBFuel.sol";
 
-contract ZStakingV1 is 
+contract StakingV1 is 
     ReentrancyGuardUpgradeable, 
     OwnableUpgradeable, 
     PausableUpgradeable, 
