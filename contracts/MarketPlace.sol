@@ -10,46 +10,59 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "./TransferHelper.sol";
 
 contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
     using SafeMath for uint256;
     using EnumerableSet for EnumerableSet.UintSet;
-
-    mapping(address => EnumerableSet.UintSet) private _holderTokens;
-    mapping(uint256 => NFT) private _tokenOwners;
-
-    mapping(address => bool) private _supportedBaseToken;
-    address usdt;
-    address btcz;
-    uint256 public usdtPrice = 2e20;
-    uint256 public btczPrice = 2e20;
-    IERC721 public nft;
-    uint256 public fee = 3;
-    address public pool;
-    uint8 mode = 0;
+    using TransferHelper for address;
 
     struct NFT {
+        address nftAddr;
         uint256 tokenId;
         uint256 price;
         address baseToken;
         uint256 giftCode;
-        address payable owner;
+        address owner;
     }
+    /// nft addr 
+    /// owner
+    /// nftSet
+    mapping(address => mapping(address => EnumerableSet.UintSet)) private _holderTokens;
+    
+    /// nft addr 
+    /// owner
+    /// nft info
+    mapping(address => mapping(uint256 => NFT)) private _tokenOwners;
+    mapping(address => bool) public minerList;
+
+    mapping(address => bool) private _supportedBaseToken;
+    address usdt;
+    address btcc = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+    uint256 public usdtPrice = 2e20;
+    uint256 public btccPrice = 2e20;
+    uint256 public fee = 3;
+    address public pool;
+    uint8 mode = 0;
+
 
     /* ========== CONSTRUCTOR ========== */
     constructor(
         address _usdt,
-        address _btcz,
-        address _addr,
         address _pool
     ) {
         usdt = _usdt;
-        btcz = _btcz;
-        _supportedBaseToken[_usdt] = true;
-        _supportedBaseToken[_btcz] = true;
-        nft = IERC721(_addr);
+        _supportedBaseToken[usdt] = true;
+        _supportedBaseToken[btcc] = true;
         pool = _pool;
     }
+
+    modifier onlyValidMiner(address miner) {
+        require(minerList[miner] == true, "E: miner is not valid");
+        _;
+    }
+
+    receive() external payable {}
 
     function setPool(address _pool) external onlyOwner {
         emit SetPool(_pool);
@@ -68,12 +81,6 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
         _supportedBaseToken[addr] = isSupported;
     }
 
-    function setNFT(address addr) external onlyOwner {
-        emit SetNFT(addr);
-        require(addr != address(0), "address is zero");
-        nft = IERC721(addr);
-    }
-
     function setUSDT(address addr, uint256 _price) external onlyOwner {
         emit SetUSDT(addr);
         require(addr != address(0), "address is zero");
@@ -81,37 +88,35 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
         usdtPrice = _price;
     }
 
-    function setBTCZ(address addr, uint256 _btczPrice) external onlyOwner {
-        emit SetBTCZ(addr);
-        require(addr != address(0), "address is zero");
-        btcz = addr;
-        btczPrice = _btczPrice;
-    }
-
     function setMode(uint8 _mode) external onlyOwner {
         emit SetMode(_mode);
         mode = _mode;
     }
 
-    function balanceOf(address owner) public view returns (uint256) {
+    function balanceOf(address nftAddr, address owner) public view returns (uint256) {
         require(
             owner != address(0),
             "NFTStore: balance query for the zero address"
         );
 
-        return _holderTokens[owner].length();
+        return _holderTokens[nftAddr][owner].length();
     }
 
-    function tokenOfOwnerByIndex(address owner, uint256 index)
+    function tokenOfOwnerByIndex(address nftAddr, address owner, uint256 index)
         public
         view
         returns (uint256)
     {
-        return _holderTokens[owner].at(index);
+        return _holderTokens[nftAddr][owner].at(index);
     }
 
-    function ownerOf(uint256 tokenId) public view returns (address) {
-        return _tokenOwners[tokenId].owner;
+    function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {
+        require(_addr != address(0), "address is zero");
+        minerList[_addr] = status;
+    }
+
+    function ownerOf(address nftAddr, uint256 tokenId) public view returns (address) {
+        return _tokenOwners[nftAddr][tokenId].owner;
     }
 
     function pause() public virtual onlyOwner {
@@ -123,41 +128,44 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
     }
 
     function sell(
+        address nftAddr,
         uint256 tokenId,
         address baseToken,
         uint256 giftCode,
         uint256 price
-    ) public whenNotPaused {
+    ) public whenNotPaused onlyValidMiner(nftAddr) {
         emit Sell(tokenId);
         require(_supportedBaseToken[baseToken], "Not supported baseToken");
         if (mode == 1) {
             if (baseToken == usdt) {
                 price = usdtPrice;
             }
-            if (baseToken == btcz) {
-                price = btczPrice;
+            if (baseToken == btcc) {
+                price = btccPrice;
             }
         }
         NFT memory newNFT = NFT({
+            nftAddr: nftAddr,
             tokenId: tokenId,
             price: price,
             baseToken: baseToken,
             giftCode: giftCode,
-            owner: payable(_msgSender())
+            owner: _msgSender()
         });
 
-        nft.safeTransferFrom(_msgSender(), address(this), tokenId);
-        _holderTokens[_msgSender()].add(tokenId);
-        _tokenOwners[tokenId] = newNFT;
+        IERC721(nftAddr).safeTransferFrom(_msgSender(), address(this), tokenId);
+        _holderTokens[nftAddr][_msgSender()].add(tokenId);
+        _tokenOwners[nftAddr][tokenId] = newNFT;
     }
 
-    function buy(uint256 tokenId, uint256 giftCode)
+    function buy(address nftAddr, uint256 tokenId, uint256 giftCode)
         public
         payable
         whenNotPaused
+        onlyValidMiner(nftAddr)
     {
         emit Buy(tokenId);
-        NFT memory tokenNFT = _tokenOwners[tokenId];
+        NFT memory tokenNFT = _tokenOwners[nftAddr][tokenId];
         require(
             tokenNFT.owner != address(0),
             "NFTStore: operator query for nonexistent token"
@@ -166,23 +174,31 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
             tokenNFT.giftCode == giftCode,
             "NFTStore: giftCode not correct"
         );
-        IERC20 baseToken = IERC20(tokenNFT.baseToken);
+        address baseToken = tokenNFT.baseToken;
         uint256 price = tokenNFT.price;
         uint256 tradeFee = price.mul(fee).div(100);
-        baseToken.transferFrom(_msgSender(), pool, tradeFee);
-        baseToken.transferFrom(
-            _msgSender(),
-            tokenNFT.owner,
-            price.sub(tradeFee)
-        );
-        nft.safeTransferFrom(address(this), _msgSender(), tokenId);
-        _holderTokens[tokenNFT.owner].remove(tokenId);
-        delete _tokenOwners[tokenId];
+
+        if(baseToken != btcc) {
+            baseToken.safeTransferFrom(_msgSender(), pool, tradeFee);
+            baseToken.safeTransferFrom(
+                _msgSender(),
+                tokenNFT.owner,
+                price.sub(tradeFee)
+            );
+        } else {
+            require(msg.value >= price, "E: insuficient fund");
+            pool.safeTransferETH(tradeFee);
+            tokenNFT.owner.safeTransferETH(price.sub(tradeFee));
+        }
+
+        IERC721(nftAddr).safeTransferFrom(address(this), _msgSender(), tokenId);
+        _holderTokens[nftAddr][tokenNFT.owner].remove(tokenId);
+        delete _tokenOwners[nftAddr][tokenId];
     }
 
-    function unlock(uint256 tokenId) public {
+    function unlock(address nftAddr, uint256 tokenId) public {
         emit Unlock(tokenId);
-        NFT memory tokenNFT = _tokenOwners[tokenId];
+        NFT memory tokenNFT = _tokenOwners[nftAddr][tokenId];
         require(
             tokenNFT.owner != address(0),
             "NFTStore: operator query for nonexistent token"
@@ -191,20 +207,20 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
             tokenNFT.owner == _msgSender(),
             "NFTStore: transfer of token that is not own"
         );
-        nft.safeTransferFrom(address(this), _msgSender(), tokenId);
-        _holderTokens[_msgSender()].remove(tokenId);
-        delete _tokenOwners[tokenId];
+        IERC721(nftAddr).safeTransferFrom(address(this), _msgSender(), tokenId);
+        _holderTokens[nftAddr][_msgSender()].remove(tokenId);
+        delete _tokenOwners[nftAddr][tokenId];
     }
 
-    function back(address target, uint256 tokenId) public onlyOwner {
+    function back(address nftAddr, address target, uint256 tokenId) public onlyOwner {
         require(
-            _tokenOwners[tokenId].owner == address(0),
+            _tokenOwners[nftAddr][tokenId].owner == address(0),
             "NFTStore:token is locked"
         );
-        nft.safeTransferFrom(address(this), target, tokenId);
+        IERC721(nftAddr).safeTransferFrom(address(this), target, tokenId);
     }
 
-    function getNFT(uint256 tokenId)
+    function getNFT(address nftAddr, uint256 tokenId)
         public
         view
         returns (
@@ -214,7 +230,7 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
             address owner
         )
     {
-        NFT memory tokenNFT = _tokenOwners[tokenId];
+        NFT memory tokenNFT = _tokenOwners[nftAddr][tokenId];
         require(
             tokenNFT.owner != address(0),
             "NFTStore: operator query for nonexistent token"
