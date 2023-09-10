@@ -70,6 +70,8 @@ async function main() {
   let proxy = await COD20Proxy.deploy(staking.address, initialize_data.data);
   await proxy.deployed()
 
+  console.log("staking address is", proxy.address);
+
   ////  stakingV1
   const StakingV1 = await hre.ethers.getContractFactory('StakingV1')
   const stakingV1 = await StakingV1.deploy()
@@ -86,10 +88,11 @@ async function main() {
   const COD20ProxyV1 = await hre.ethers.getContractFactory('COD20Proxy')
   let proxyV1 = await COD20ProxyV1.deploy(stakingV1.address, initialize_dataV1.data);
   await proxyV1.deployed()
+  console.log("stakingV1 address is", proxyV1.address);
 
   let busdAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
   const MarketPlace = await hre.ethers.getContractFactory('MarketPlace')
-  const marketPlace = await MarketPlace.deploy(busdAddress, btcc.address, nftMiner1.address, '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
+  const marketPlace = await MarketPlace.deploy(busdAddress, '0xAF702571cb3F0b9091C6E6c8B9731705E2ee0804')
   await marketPlace.deployed()
 
   console.log("bfuel address :",bfuel.address);
