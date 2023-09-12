@@ -31,6 +31,13 @@ async function main() {
     property_address = process.env.G_PROPERTY;
     factory_address = process.env.G_FACTORY;
     break;
+  case 66666 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    property_address = process.env.B_PROPERTY;
+    factory_address = process.env.B_FACTORY;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;

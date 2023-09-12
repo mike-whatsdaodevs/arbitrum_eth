@@ -27,13 +27,22 @@ async function main() {
     miner3_address = process.env.G_MINER3;
     staking_address = process.env.G_PROXY;
     break;
+  case 66666 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    staking_address = process.env.B_PROXY;
+    stakingV1_address = process.env.B_PROXYV1;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     staking_address = process.env.LOCAL_PROXY;
   }
-  const staking = await ethers.getContractAt('ZStaking', staking_address, signer)
+
+  staking_address = stakingV1_address;
+  const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
   const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
 
 
@@ -57,7 +66,7 @@ async function main() {
   );
 
   let ids = Array(
-    11, 12, 13, 14, 15
+    1, 2, 3, 4, 5
   );
 
   let stakingTx = await staking.batchStake(nfts, ids);

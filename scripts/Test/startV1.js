@@ -18,22 +18,21 @@ async function main() {
   console.log(network);
 
   let staking_address;
-  let btcc_address;
   switch (network) {
   case 5:
     staking_address = process.env.G_PROXYV1;
-    btcc_address = process.env.G_BTCC
+    break;
+  case 66666:
+    staking_address = process.env.B_PROXYV1;
     break;
   default:
     staking_address = process.env.LOCAL_PROXYV1;
-    btcc_address = process.env.LOCAL_BTCC
   }
 
   const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
-  const token = await ethers.getContractAt('BTCCToken', btcc_address, signer)
 
   let overrides = {
-    value : ethers.utils.parseEther("1")
+    value : ethers.utils.parseEther("100")
   }
   // start
   let startTx = await staking.start(overrides)

@@ -32,6 +32,14 @@ async function main() {
     miner3_address = process.env.G_MINER3;
     btcc_address = process.env.G_BTCC
     break;
+  case 66666:
+    staking_address = process.env.B_PROXYV1;
+    stakingV1_address = process.env.B_PROXYV1;
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    btcc_address = process.env.B_BTCC
+    break;
   default:
     staking_address = process.env.LOCAL_PROXY;
     stakingV1_address = process.env.LOCAL_PROXYV1;
@@ -63,10 +71,11 @@ async function main() {
   let setSFuelReciveerTx = await staking.setFuelReceiver(deployer.address);
   await setSFuelReciveerTx.wait();
 
-  // approve
-  let approveTokenTx = await token.approve(staking_address, ethers.constants.MaxUint256);
-  await approveTokenTx.wait();
-
+  if(network != 66666) {
+    // approve
+    let approveTokenTx = await token.approve(staking_address, ethers.constants.MaxUint256);
+    await approveTokenTx.wait();
+  }
 
   let setNFTMinerTx1 = await staking.setNFTStatus(miner1_address, true);
   await setNFTMinerTx1.wait();

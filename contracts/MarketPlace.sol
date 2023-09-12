@@ -110,7 +110,7 @@ contract MarketPlace is Context, ERC721Holder, Ownable, Pausable {
         return _holderTokens[nftAddr][owner].at(index);
     }
 
-    function setNFTStatus(address _addr, bool status) external onlyOwner whenNotPaused {
+    function setNFTMiner(address _addr, bool status) external onlyOwner whenNotPaused {
         require(_addr != address(0), "address is zero");
         minerList[_addr] = status;
     }

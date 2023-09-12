@@ -29,6 +29,13 @@ async function main() {
     staking_address = process.env.G_PROXY;
     stakingV1_address = process.env.G_PROXYV1;
     break;
+  case 66666 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    staking_address = process.env.B_PROXY;
+    stakingV1_address = process.env.B_PROXYV1;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
@@ -38,7 +45,7 @@ async function main() {
   }
 
   staking_address = stakingV1_address;
-  const staking = await ethers.getContractAt('Staking', staking_address, signer)
+  const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
 
   let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)

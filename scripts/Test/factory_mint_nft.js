@@ -17,7 +17,6 @@ async function main() {
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-
   let miner1_address;
   let miner2_address;
   let miner3_address;
@@ -31,6 +30,13 @@ async function main() {
     property_address = process.env.G_PROPERTY;
     factory_address = process.env.G_FACTORY;
     break;
+  case 66666 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    property_address = process.env.B_PROPERTY;
+    factory_address = process.env.B_FACTORY;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
@@ -38,11 +44,12 @@ async function main() {
     property_address = process.env.LOCAL_PROPERTY;
     factory_address = process.env.LOCAL_FACTORY;
   }
-
-  let nftAddr = miner1_address;
+  let nftAddr = miner3_address;
   const factory = await ethers.getContractAt('NFTFactory', factory_address, signer)
 
-  let receiver = deployer.address;
+  /// ERIC
+  let receiver = "0xD6C3b1a1b70F1b10d886f4B6964cD225d861dDE0" 
+  // let receiver = deployer.address;
   let buildMinerTx = await factory.batchBuildMiner(nftAddr, receiver, 10);
   await buildMinerTx.wait();   
 

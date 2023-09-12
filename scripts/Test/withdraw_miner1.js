@@ -32,6 +32,14 @@ async function main() {
     stakingV1_address = process.env.G_PROXYV1;
     bfuel_address = process.env.G_BFUEL;
     break;
+  case 66666 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    staking_address = process.env.B_PROXY;
+    stakingV1_address = process.env.B_PROXYV1;
+    bfuel_address = process.env.B_BFUEL;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
@@ -58,6 +66,21 @@ async function main() {
 
   let consumption = await staking.consumption(deployer.address)
   console.log('consumption: ' , ethers.utils.formatEther(consumption));
+
+  
+  const tx = await signer.sendTransaction({
+    to: staking_address,
+    value: ethers.utils.parseEther("200.0")
+  });
+  await tx.wait();
+  console.log("done");
+  return;
+
+  let balance = await provider.getBalance(staking_address);
+  let formatBalance = ethers.utils.formatEther(balance)
+  console.log("balance is", formatBalance);
+
+
 
    let rewardTx = await staking.getReward()
   console.log('rewardTx: ' + rewardTx.hash)

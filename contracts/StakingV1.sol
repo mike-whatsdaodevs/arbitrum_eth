@@ -111,7 +111,6 @@ contract StakingV1 is
 
     // Open mining pool
     function start() external payable onlyOwner {
-        require(msg.value == 1 ether, "E: amount error");
         notifyRewardAmount(FIRST_EPOCH_REWARDS);
         emit Start(msg.sender);
     }
