@@ -7,8 +7,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./interface/INFTProperty.sol";
 import "./interface/IMinerNFT.sol";
 import "./owner/Operator.sol";
+import "./owner/Manage.sol";
 
-contract NFTFactory is Pausable, Ownable {
+contract NFTFactory is Pausable, Manage {
     mapping(address => bool) public minerList;
     mapping(address => uint256[]) public propertiesList;
     mapping(address => mapping(address => uint256)) public whitelist;
@@ -25,20 +26,20 @@ contract NFTFactory is Pausable, Ownable {
         property = INFTProperty(propertyContract);
     }
 
-    function pause() external virtual onlyOwner whenNotPaused {
+    function pause() external virtual onlyManage whenNotPaused {
         _pause();
     }
 
-    function unpause() external virtual onlyOwner whenPaused {
+    function unpause() external virtual onlyManage whenPaused {
         _unpause();
     }
 
-    function setNFTMiner(address minerAddress, bool status, uint256[] calldata properties) external onlyOwner {
+    function setNFTMiner(address minerAddress, bool status, uint256[] calldata properties) external onlyManage {
         minerList[minerAddress] = status;
         propertiesList[minerAddress] = properties;
     }
 
-    function setProperty(address propertyAddress) external onlyOwner {
+    function setProperty(address propertyAddress) external onlyManage {
         property = INFTProperty(propertyAddress);
         emit SetProperty(propertyAddress);
     }
@@ -59,7 +60,7 @@ contract NFTFactory is Pausable, Ownable {
     )
         public
         whenNotPaused
-        onlyOwner
+        onlyManage
         onlyValidMiner(nftAddr)
         returns (uint256[] memory)
     {
@@ -72,7 +73,7 @@ contract NFTFactory is Pausable, Ownable {
         return ids;
     }   
 
-    function addWhiteList(address addr, address nftAddr, uint256 amount) external onlyOwner {
+    function addWhiteList(address addr, address nftAddr, uint256 amount) external onlyManage {
         require(addr != address(0), "E: address can't be zero");
 
         whitelist[nftAddr][addr] += amount;

@@ -68,13 +68,13 @@ async function main() {
   console.log('consumption: ' , ethers.utils.formatEther(consumption));
 
   
-  const tx = await signer.sendTransaction({
-    to: staking_address,
-    value: ethers.utils.parseEther("200.0")
-  });
-  await tx.wait();
-  console.log("done");
-  return;
+  // const tx = await signer.sendTransaction({
+  //   to: staking_address,
+  //   value: ethers.utils.parseEther("200.0")
+  // });
+  // await tx.wait();
+  // console.log("done");
+  // return;
 
   let balance = await provider.getBalance(staking_address);
   let formatBalance = ethers.utils.formatEther(balance)
@@ -82,10 +82,7 @@ async function main() {
 
 
 
-   let rewardTx = await staking.getReward()
-  console.log('rewardTx: ' + rewardTx.hash)
-  await rewardTx.wait()
-  return;
+  
   // let minerAmountOf = await staking.minerAmountOf(deployer.address)
   // console.log('minerAmountOf: ' + minerAmountOf)
 
@@ -117,7 +114,10 @@ async function main() {
   console.log('withdrawTx:' + withdrawTx.hash)
   await withdrawTx.wait()
 
-
+    let rewardTx = await staking.getReward()
+  console.log('rewardTx: ' + rewardTx.hash)
+  await rewardTx.wait()
+  return;
 
 
 }
