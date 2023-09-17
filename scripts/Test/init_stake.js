@@ -68,8 +68,8 @@ async function main() {
   console.log('approveTx:' + approve_miner3_Tx.hash)
   await approve_miner3_Tx.wait()
 
-  let setSFuelReciveerTx = await staking.setFuelReceiver(deployer.address);
-  await setSFuelReciveerTx.wait();
+  let setFuelReceiverTx = await staking.setFuelReceiver(deployer.address);
+  await setFuelReceiverTx.wait();
 
   if(network != 66666) {
     // approve

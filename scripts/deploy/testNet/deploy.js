@@ -23,6 +23,12 @@ async function main() {
     gasPrice: 20000
   }
 
+  const WBTCC = await hre.ethers.getContractFactory('WBTCC')
+  const wbtcc = await WBTCC.deploy()
+  await wbtcc.deployed()
+  console.log("wbtcc address :",wbtcc.address);
+  return;
+
   const BFuelToken = await hre.ethers.getContractFactory('BFuelToken')
   const bfuel = await BFuelToken.deploy(deployer.address, deployer.address)
   await bfuel.deployed()

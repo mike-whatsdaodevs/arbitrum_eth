@@ -11,60 +11,63 @@ async function main() {
   console.log('NetWorks Name is ', (await ethers.provider.getNetwork()).name)
 
   const [deployer] = await ethers.getSigners()
-
   console.log('deployer:' + deployer.address)
 
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-
   let miner1_address;
   let miner2_address;
   let miner3_address;
-  let property_address;
-  let factory_address;
+  let market_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
     miner2_address = process.env.G_MINER2;
     miner3_address = process.env.G_MINER3;
-    property_address = process.env.G_PROPERTY;
-    factory_address = process.env.G_FACTORY;
+    market_address = process.env.G_MARKET;
     break;
   case 66666 :
     miner1_address = process.env.B_MINER1;
     miner2_address = process.env.B_MINER2;
     miner3_address = process.env.B_MINER3;
-    property_address = process.env.B_PROPERTY;
-    factory_address = process.env.B_FACTORY;
+    market_address = process.env.B_MARKET;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
-    property_address = process.env.LOCAL_PROPERTY;
-    factory_address = process.env.LOCAL_FACTORY;
+    market_address = process.env.LOCAL_MARKET;
   }
 
-  let nftAddr = miner1_address;
-  const factory = await ethers.getContractAt('NFTFactory', factory_address, signer)
+  let btcc_address = process.env.B_BTCC;
+  let miner_address = miner1_address;
+  const market = await ethers.getContractAt('MarketPlace', market_address, signer)
+  const miner = await ethers.getContractAt('NFTMiner', miner_address, signer)
 
-  let receiver = deployer.address;
+  let approve_miner_Tx = await miner.setApprovalForAll(market_address, true)
+  await approve_miner_Tx.wait();
+  console.log('approveTx:' + approve_miner_Tx.hash)
 
-  let isManager = await factory.manage(process.env.ERIC_ADDRESS);
-  console.log("isManager is:", isManager);
+  // function sell(
+  //     address nftAddr,
+  //     uint256 tokenId,
+  //     address baseToken,
+  //     uint256 giftCode,
+  //     uint256 price
+  // )
+  
+  let sellTx = await market.sell(
+    miner_address,
+    6,
+    btcc_address,
+    0,
+    ethers.utils.parseEther("1")
+  );
+  await sellTx.wait();
 
-  let addWhiteListTx = await factory.addWhiteList(receiver, nftAddr, 1);
-  await addWhiteListTx.wait();
-
-  let amount = await factory.whitelist(nftAddr, receiver);
-  console.log("white list is:", amount);
-
-  // let mintTx = await factory.mintWhiteList(nftAddr, 2);
-  // await mintTx.wait(); 
-
-  console.log("done");  
-
+  let result = await market.getNFT(miner_address, 6);
+  console.log(result);
 
 }
 

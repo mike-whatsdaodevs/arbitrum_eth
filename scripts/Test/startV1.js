@@ -32,7 +32,7 @@ async function main() {
   const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
 
   let overrides = {
-    value : ethers.utils.parseEther("100")
+    value : ethers.utils.parseEther("20000000")
   }
   // start
   let startTx = await staking.start(overrides)

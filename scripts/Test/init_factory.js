@@ -68,6 +68,7 @@ async function main() {
       3
   );
 
+  /// miner
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
   let addManageTx1 = await miner1.addManage(factory_address);
   await addManageTx1.wait();
@@ -80,11 +81,22 @@ async function main() {
   let addManageTx3 = await miner3.addManage(factory_address);
   await addManageTx3.wait();
 
+
+  /// property
   const property = await ethers.getContractAt('NFTProperty', property_address, signer)
   let addManageTx4 = await property.addManage(factory_address);
   await addManageTx4.wait();
 
+  /// factory
   const factory = await ethers.getContractAt('NFTFactory', factory_address, signer)
+  
+  let addFactoryManageTx1 = await factory.addManage(deployer.address);
+  await addFactoryManageTx1.wait();
+
+  let order_address = "0xD6C3b1a1b70F1b10d886f4B6964cD225d861dDE0";
+  let addFactoryManageTx2 = await factory.addManage(order_address);
+  await addFactoryManageTx2.wait();
+
   let setNFTMinerTx1 = await factory.setNFTMiner(miner1_address, true, property1);
   await setNFTMinerTx1.wait();
 
@@ -94,6 +106,7 @@ async function main() {
   let setNFTMinerTx3 = await factory.setNFTMiner(miner3_address, true, property3);
   await setNFTMinerTx3.wait();
 
+  /// market
   const market = await ethers.getContractAt('MarketPlace', market_address, signer)
   let setMarketNFTMinerTx1 = await market.setNFTMiner(miner1_address, true);
   await setMarketNFTMinerTx1.wait();
