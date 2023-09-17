@@ -17,8 +17,13 @@ contract BTCCToken is ERC20, Pausable, Ownable {
         return true;
     }
 
-    function burn(uint256 amount) external onlyOwner whenNotPaused returns (bool) {
-        super._burn(_msgSender(), amount);
+    function burn(address account, uint256 amount) 
+        external 
+        onlyOwner 
+        whenNotPaused 
+        returns (bool) 
+    {
+        super._burn(account, amount);
         return true;
     }
 
