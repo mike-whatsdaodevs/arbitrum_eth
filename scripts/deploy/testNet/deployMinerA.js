@@ -14,12 +14,16 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const NFTMinerA = await hre.ethers.getContractFactory('NFTMinerA')
-  const miner = await NFTMinerA.deploy()
-  await miner.deployed()
 
-  // 0x3179e7dAe2ef85f5Ea135df9817ec9290Bbc9F32 v1
-  console.log('NFTMiner deployed to:', miner.address)
+  const NFTMiner = await hre.ethers.getContractFactory('NFTMiner')
+  const nftMiner1 = await NFTMiner.deploy(
+    "ZEON GT1X",
+    "ZEON GT1X",
+    "https://nft.bitcoincode.technology/zeongt1x/"
+  );
+  await nftMiner1.deployed()
+
+  console.log("nftMiner1 address is:", nftMiner1.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -36,6 +36,13 @@ async function main() {
     staking_address = process.env.B_PROXY;
     stakingV1_address = process.env.B_PROXYV1;
     break;
+  case 963 :
+    miner1_address = process.env.M_MINER1;
+    miner2_address = process.env.M_MINER2;
+    miner3_address = process.env.M_MINER3;
+    staking_address = process.env.M_PROXY;
+    stakingV1_address = process.env.M_PROXYV1;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
@@ -45,29 +52,42 @@ async function main() {
   }
 
   staking_address = stakingV1_address;
+
+  console.log(staking_address);
   const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
 
-  let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)
-  await approve_miner_Tx.wait();
-  console.log('approveTx:' + approve_miner_Tx.hash)
+
+  let pauseTx = await staking.unpause();
+  await pauseTx.wait();
+  console.log(pauseTx.hash);
+  return;
+  // let recoverTx = await staking.recover(deployer.address);
+  // await recoverTx.wait();
+  // console.log(recoverTx.hash);
+  // return;
+
+  // let approve_miner_Tx = await miner1.setApprovalForAll(staking_address, true)
+  // await approve_miner_Tx.wait();
+  // console.log('approveTx:' + approve_miner_Tx.hash)
 
   // // // // staking
   let nfts = Array(
-    miner1_address,
-    miner1_address,
-    miner1_address,
-    miner1_address,
-    miner1_address,
+    miner1_address
   );
 
   let ids = Array(
-    1, 2, 3, 4, 5
+    "6819",
   );
 
+  console.log(nfts);
+  console.log(ids);
   let stakingTx = await staking.batchStake(nfts, ids);
   console.log('stakingTx:' + stakingTx.hash)
   await stakingTx.wait();
+
+  console.log(stakingTx.hash);
+  return;
 
   let totalHashRate = await staking.totalHashRate();
   console.log("totalHashRate is:", totalHashRate);

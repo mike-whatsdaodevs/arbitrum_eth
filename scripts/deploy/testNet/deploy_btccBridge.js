@@ -13,32 +13,10 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  // We get the contract to deploy
-
-  const network = (await ethers.provider.getNetwork()).chainId;
-  console.log(network);
-
-  let property_address;
-  switch (network) {
-  case 5 :
-    property_address = process.env.G_PROPERTY;
-    break;
-  case 66666 :
-    property_address = process.env.B_PROPERTY;
-    break;
-  case 963 :
-    property_address = process.env.M_PROPERTY;
-    break;
-  default: 
-    property_address = process.env.LOCAL_PROPERTY;
-  }
-
-  const NFTFactory = await hre.ethers.getContractFactory('NFTFactory')
-  const factory = await NFTFactory.deploy(property_address)
-  await factory.deployed()
-
-  // 0xe2B51C181eCe7D4BfAfd448072671A79d59F7CEb v1
-  console.log('NFTFactory deployed to:', factory.address)
+  const BTCCBridge = await hre.ethers.getContractFactory('BTCCBridge')
+  const bridge = await BTCCBridge.deploy(process.env.M_USDT);
+  await bridge.deployed()
+  console.log("bridge address :",bridge.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

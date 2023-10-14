@@ -27,7 +27,11 @@ async function main() {
   const wbtcc = await WBTCC.deploy()
   await wbtcc.deployed()
   console.log("wbtcc address :",wbtcc.address);
-  return;
+
+  const WBTC = await hre.ethers.getContractFactory('WBTC')
+  const wbtc = await WBTC.deploy()
+  await wbtc.deployed()
+  console.log("wbtc address :",wbtc.address);
 
   const BFuelToken = await hre.ethers.getContractFactory('BFuelToken')
   const bfuel = await BFuelToken.deploy(deployer.address, deployer.address)
@@ -38,17 +42,33 @@ async function main() {
   const btcc = await BTCCToken.deploy(deployer.address)
   await btcc.deployed()
 
-  const NFTMiner1 = await hre.ethers.getContractFactory('NFTMiner')
-  const nftMiner1 = await NFTMiner1.deploy()
+  const NFTMiner = await hre.ethers.getContractFactory('NFTMiner')
+  const nftMiner1 = await NFTMiner.deploy(
+    "ZEON GT1X",
+    "ZEON GT1X",
+    "https://nft.bitcoincode.technology/zeongt1x/"
+  );
   await nftMiner1.deployed()
 
-  const NFTMiner2 = await hre.ethers.getContractFactory('NFTMiner')
-  const nftMiner2 = await NFTMiner2.deploy()
+  const nftMiner2 = await NFTMiner.deploy(
+    "ZEON GT10X",
+    "ZEON GT10X",
+    "https://nft.bitcoincode.technology/zeongt10x/"
+  )
   await nftMiner2.deployed()
 
-  const NFTMiner3 = await hre.ethers.getContractFactory('NFTMiner')
-  const nftMiner3 = await NFTMiner3.deploy()
-  await nftMiner3.deployed()
+  const nftMiner3 = await NFTMiner.deploy(
+    "ZEON GT100X",
+    "ZEON GT100X",
+    "https://nft.bitcoincode.technology/zeongt100x/"
+  )
+  await nftMiner3.deployed();
+
+  console.log(nftMiner1.address);
+
+  console.log(nftMiner2.address);
+
+  console.log(nftMiner3.address);
 
   const NFTProperty = await hre.ethers.getContractFactory('NFTProperty')
   const property = await NFTProperty.deploy()
@@ -62,6 +82,7 @@ async function main() {
   const Staking = await hre.ethers.getContractFactory('Staking')
   const staking = await Staking.deploy()
   await staking.deployed()
+  console.log("staking address is", staking.address);
 
   let rewardsDuration = 4 * 365 * 60 * 60 * 24
   // const stakingObj = await hre.ethers.getContractAt('Staking', staking, signer)
@@ -76,12 +97,14 @@ async function main() {
   let proxy = await COD20Proxy.deploy(staking.address, initialize_data.data);
   await proxy.deployed()
 
-  console.log("staking address is", proxy.address);
+  console.log("proxy address is", proxy.address);
 
   ////  stakingV1
   const StakingV1 = await hre.ethers.getContractFactory('StakingV1')
   const stakingV1 = await StakingV1.deploy()
   await stakingV1.deployed()
+
+  console.log("stakingV1 address is", stakingV1.address);
 
   // const stakingObj = await hre.ethers.getContractAt('Staking', staking, signer)
   const initialize_dataV1 = await stakingV1.populateTransaction.initialize(
@@ -94,7 +117,7 @@ async function main() {
   const COD20ProxyV1 = await hre.ethers.getContractFactory('COD20Proxy')
   let proxyV1 = await COD20ProxyV1.deploy(stakingV1.address, initialize_dataV1.data);
   await proxyV1.deployed()
-  console.log("stakingV1 address is", proxyV1.address);
+  console.log("proxyV1 address is", proxyV1.address);
 
   let busdAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56'
   const MarketPlace = await hre.ethers.getContractFactory('MarketPlace')

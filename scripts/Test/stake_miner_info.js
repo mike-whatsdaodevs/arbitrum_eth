@@ -23,6 +23,7 @@ async function main() {
   let miner3_address;
   let staking_address;
   let stakingV1_address;
+  let bfuel_address;
   switch (network) {
   case 5 :
     miner1_address = process.env.G_MINER1;
@@ -31,12 +32,13 @@ async function main() {
     staking_address = process.env.G_PROXY;
     stakingV1_address = process.env.G_PROXYV1;
     break;
-  case 66666 :
-    miner1_address = process.env.B_MINER1;
-    miner2_address = process.env.B_MINER2;
-    miner3_address = process.env.B_MINER3;
-    staking_address = process.env.B_PROXY;
-    stakingV1_address = process.env.B_PROXYV1;
+  case 963 :
+    miner1_address = process.env.M_MINER1;
+    miner2_address = process.env.M_MINER2;
+    miner3_address = process.env.M_MINER3;
+    staking_address = process.env.M_PROXY;
+    stakingV1_address = process.env.M_PROXYV1;
+    bfuel_address = process.env.M_BFUEL;
     break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
@@ -50,26 +52,57 @@ async function main() {
   staking_address = stakingV1_address;
   const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
   const miner = await ethers.getContractAt('NFTMiner', nftAddr, signer)
+  const bfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
 
 
-  let rewardRate = await staking.rewardRate()
-  console.log('rewardRate: ' + rewardRate)
+  my_address = "0xc6aFd23A13d420828d424E327A7de4d5bA36e27C";
+  // let rewardRate = await staking.rewardRate()
+  // console.log('rewardRate: ' + rewardRate)
 
-  let earned = await staking.earned(my_address)
-  console.log('earned: ', ethers.utils.formatEther(earned.toString()));
+  // let earned = await staking.earned(my_address)
+  // console.log('earned: ', ethers.utils.formatEther(earned.toString()));
 
-  let consumption = await staking.consumption(my_address)
-  console.log('consumption: ' , ethers.utils.formatEther(consumption.toString()))
+  // let consumption = await staking.consumption(my_address)
+  // console.log('consumption: ' , ethers.utils.formatEther(consumption.toString()))
+
+  // let bfuelBalance = await bfuel.balanceOf(my_address);
+  // console.log('bfuelBalance: ' , ethers.utils.formatEther(bfuelBalance.toString()))
+
+  // let allowance = await bfuel.allowance(my_address, staking_address);
+  // console.log('allowance: ' , ethers.utils.formatEther(allowance.toString()))
 
   let miner1AmountOf = await staking.minerAmountOf(miner1_address, my_address)
   console.log('miner1AmountOf: ' + miner1AmountOf)
+
+  for(let m1 = 0; m1 < miner1AmountOf; m1 ++) {
+    let m1TokenId = await staking.minerOfOwnerByIndex(miner1_address, my_address, m1);
+
+    console.log(m1TokenId);
+  }
 
   let miner2AmountOf = await staking.minerAmountOf(miner2_address, my_address)
   console.log('miner2AmountOf: ' + miner2AmountOf)
 
 
+  for(let m2 = 0; m2 < miner2AmountOf; m2 ++) {
+    let m2TokenId = await staking.minerOfOwnerByIndex(miner2_address, my_address, m2);
+
+    console.log(m2TokenId);
+  }
+
+
   let miner3AmountOf = await staking.minerAmountOf(miner3_address, my_address)
   console.log('miner3AmountOf: ' + miner3AmountOf)
+
+
+  for(let m3 = 0; m3 < miner3AmountOf; m3 ++) {
+    let m3TokenId = await staking.minerOfOwnerByIndex(miner3_address, my_address, m3);
+
+    console.log(m3TokenId);
+  }
+
+
+  return;
 
   let totalHashRate = await staking.totalHashRate()
   console.log('totalHashRate is: ', totalHashRate)

@@ -12,34 +12,57 @@ async function main() {
   // If this script is run directly using `node` you may want to call compile
   // manually to make sure everything is compiled
   // await hre.run('compile');
+  // We get the contract to deploy
+
 
   let provider = ethers.provider
-  const [signer] = await ethers.getSigners()
-  let my_address = signer.address;
-  console.log('my_address is:', my_address)
+  const [deployer] = await ethers.getSigners()
+  console.log('deployer:' + deployer.address)
 
-  return;
-  // We get the contract to deploy
+  
+  const network = (await ethers.provider.getNetwork()).chainId;
+  console.log(network);
+
+  let overrides = {
+    gasPrice: 20000
+  }
+
   const NFTMiner = await hre.ethers.getContractFactory('NFTMiner')
-  const miner = await NFTMiner.deploy()
-  await miner.deployed()
+  const nftMiner1 = await NFTMiner.deploy(
+    "ZEON GT1X",
+    "ZEON GT1X",
+    "https://nft.bitcoincode.technology/zeongt1x/"
+  );
+  await nftMiner1.deployed()
 
-  let manageTx = await miner.addManage('0x0AA58413754e77b718a09D81852A36EA2A6AcDE7')
-  console.log('manageTx:' + manageTx.hash)
-  await manageTx.wait()
+  const nftMiner2 = await NFTMiner.deploy(
+    "ZEON GT10X",
+    "ZEON GT10X",
+    "https://nft.bitcoincode.technology/zeongt10x/"
+  )
+  await nftMiner2.deployed()
+
+  const nftMiner3 = await NFTMiner.deploy(
+    "ZEON GT100X",
+    "ZEON GT100X",
+    "https://nft.bitcoincode.technology/zeongt100x/"
+  )
+  await nftMiner3.deployed();
 
   const NFTProperty = await hre.ethers.getContractFactory('NFTProperty')
   const property = await NFTProperty.deploy()
   await property.deployed()
 
-  // NFTMiner deployed to: 0x9fd2f79fb26d4abD4aA762cCa637272bC1dF314A
-  // NFTProperty deployed to: 0xe0124086d65c4fac87C95fF3f67c680a9552C470
-  console.log('NFTMiner deployed to:', miner.address)
-  console.log('NFTProperty deployed to:', property.address)
+  const NFTFactory = await hre.ethers.getContractFactory('NFTFactory')
+  const factory = await NFTFactory.deploy(property.address)
+  await factory.deployed()
 
-  let manageTx = await property.addManage(property.address)
-  console.log('manageTx:' + manageTx.hash)
-  await manageTx.wait()
+  console.log('NFTMiner1 deployed to:', nftMiner1.address)
+  console.log('NFTMiner2 deployed to:', nftMiner2.address)
+  console.log('NFTMiner3 deployed to:', nftMiner3.address)
+
+  console.log('NFTProperty deployed to:', property.address)
+  console.log('NFTFactory deployed to:', factory.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

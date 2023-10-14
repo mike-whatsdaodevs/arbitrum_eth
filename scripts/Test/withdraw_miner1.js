@@ -40,6 +40,13 @@ async function main() {
     stakingV1_address = process.env.B_PROXYV1;
     bfuel_address = process.env.B_BFUEL;
     break;
+  case 963 :
+    miner1_address = process.env.M_MINER1;
+    miner2_address = process.env.M_MINER2;
+    miner3_address = process.env.M_MINER3;
+    stakingV1_address = process.env.M_PROXYV1;
+    bfuel_address = process.env.M_BFUEL;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
@@ -76,12 +83,6 @@ async function main() {
   // console.log("done");
   // return;
 
-  let balance = await provider.getBalance(staking_address);
-  let formatBalance = ethers.utils.formatEther(balance)
-  console.log("balance is", formatBalance);
-
-
-
   
   // let minerAmountOf = await staking.minerAmountOf(deployer.address)
   // console.log('minerAmountOf: ' + minerAmountOf)
@@ -106,17 +107,18 @@ async function main() {
   // console.log('consumption: ' , ethers.utils.formatEther(consumption1))
 
   // approve
-  let approveTokenTx = await bfuel.approve(staking_address, ethers.constants.MaxUint256)
-  console.log('approveTokenTx:' + approveTokenTx.hash)
-  await approveTokenTx.wait()
+  // let approveTokenTx = await bfuel.approve(staking_address, ethers.constants.MaxUint256)
+  // console.log('approveTokenTx:' + approveTokenTx.hash)
+  // await approveTokenTx.wait()
 
-  let withdrawTx = await staking.withdrawMiner(nftAddr, 1)
+  let withdrawTx = await staking.withdrawMiner(nftAddr, 6819)
   console.log('withdrawTx:' + withdrawTx.hash)
   await withdrawTx.wait()
+  console.log(withdrawTx.hash);
 
-    let rewardTx = await staking.getReward()
-  console.log('rewardTx: ' + rewardTx.hash)
-  await rewardTx.wait()
+  //   let rewardTx = await staking.getReward()
+  // console.log('rewardTx: ' + rewardTx.hash)
+  // await rewardTx.wait()
   return;
 
 

@@ -14,18 +14,15 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const BTCZToken = await hre.ethers.getContractFactory('BTCZToken')
-  const zBTCToken = await BTCZToken.deploy('0x9F6C71dE830F70dFc352F13fE34F351D7fA9B648')
-  await zBTCToken.deployed()
+  const [deployer] = await ethers.getSigners();
+  console.log('deployer:' + deployer.address);
 
-  // const ZWattToken = await hre.ethers.getContractFactory('ZWattToken')
-  // const zWattToken = await ZWattToken.deploy('0x9F6C71dE830F70dFc352F13fE34F351D7fA9B648', '0x9F6C71dE830F70dFc352F13fE34F351D7fA9B648')
-  // await zWattToken.deployed()
 
-  // BTCZToken deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-  // ZFuelToken deployed to: 0xc59925B8747831F1B8bAEC794194A5B05395CD4B
-  console.log('BTCZToken deployed to:', zBTCToken.address)
-  // console.log('ZFuelToken deployed to:', zWattToken.address)
+  const Bridge = await hre.ethers.getContractFactory('Bridge');
+  const bridge = await Bridge.deploy(deployer.address);
+  await bridge.deployed();
+
+  console.log('bridge deployed to:', bridge.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

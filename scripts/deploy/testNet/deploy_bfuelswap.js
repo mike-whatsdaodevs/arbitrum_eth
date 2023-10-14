@@ -13,32 +13,25 @@ async function main() {
   // manually to make sure everything is compiled
   // await hre.run('compile');
 
-  // We get the contract to deploy
+  let provider = ethers.provider
+  let signer = provider.getSigner()
 
-  const network = (await ethers.provider.getNetwork()).chainId;
-  console.log(network);
+  console.log('NetWorks ID is ', (await ethers.provider.getNetwork()).chainId)
+  console.log('NetWorks Name is ', (await ethers.provider.getNetwork()).name)
 
-  let property_address;
-  switch (network) {
-  case 5 :
-    property_address = process.env.G_PROPERTY;
-    break;
-  case 66666 :
-    property_address = process.env.B_PROPERTY;
-    break;
-  case 963 :
-    property_address = process.env.M_PROPERTY;
-    break;
-  default: 
-    property_address = process.env.LOCAL_PROPERTY;
-  }
+  const [deployer] = await ethers.getSigners()
 
-  const NFTFactory = await hre.ethers.getContractFactory('NFTFactory')
-  const factory = await NFTFactory.deploy(property_address)
-  await factory.deployed()
+  console.log('deployer:' + deployer.address)
 
-  // 0xe2B51C181eCe7D4BfAfd448072671A79d59F7CEb v1
-  console.log('NFTFactory deployed to:', factory.address)
+
+  const BFuelSwap = await hre.ethers.getContractFactory('BFuelSwap')
+  const swap = await BFuelSwap.deploy(
+    process.env.M_USDT,
+    process.env.M_BFUEL,
+    deployer.address
+  );
+  await swap.deployed()
+  console.log("swap address :",swap.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

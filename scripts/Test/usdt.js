@@ -1,5 +1,6 @@
 const { ethers, run } = require('hardhat')
 require('dotenv').config({ path: '.env' })
+const {data} = require('../list/10-5-100X.js');
 
 async function main() {
   await run('compile')
@@ -19,24 +20,31 @@ async function main() {
   console.log(network);
 
 
-  let bfuel_address;
+  let usdt_address;
   switch (network) {
-  case 5 :  
-    bfuel_address = process.env.G_bfuel;
-    break;
   case 66666 :  
-    bfuel_address = process.env.B_BFUEL;
+    usdt_address = process.env.B_USDT;
+    break;
+  case 963 :  
+    usdt_address = process.env.M_USDT;
     break;
   default: 
-    bfuel_address = process.env.LOCAL_bfuel;
+    usdt_address = process.env.LOCAL_USDT;
   }
 
-  const bfuel = await ethers.getContractAt('BFuelToken', bfuel_address, signer)
+  console.log(usdt_address);
+  const usdt = await ethers.getContractAt('USDT', usdt_address, signer)
 
-  let address = "0xbec9536B52d7977AD2bE0842Db0F74a79c40F010";
-  let amount = ethers.utils.parseEther("100000");
+  // let addManageTx1 = await usdt.setManage("0xD6C3b1a1b70F1b10d886f4B6964cD225d861dDE0", true);
+  // await addManageTx1.wait();
+  // console.log(addManageTx1.hash);
+  // return;
+  let address = "0x06aCe60b5D5cC887a79AC111dEeF88B5453dCAA0";//deployer.address;
+  let amount = ethers.utils.parseUnits("0", 6);
   console.log(amount);
-  let tx = await bfuel.transfer(address, amount);
+  console.log(address);
+  return;
+  let tx = await usdt.mint(address, amount);
   await tx.wait();
   console.log(tx.hash);
 }

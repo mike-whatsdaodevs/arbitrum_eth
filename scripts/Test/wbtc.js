@@ -1,4 +1,5 @@
 const { ethers, run } = require('hardhat')
+require('dotenv').config({ path: '.env' })
 
 async function main() {
   await run('compile')
@@ -13,34 +14,34 @@ async function main() {
 
   console.log('deployer:' + deployer.address)
 
-  
+
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-  let staking_address;
+
+  let wbtc_address;
   switch (network) {
-  case 5:
-    staking_address = process.env.G_PROXYV1;
+  case 5 :  
+    wbtc_address = process.env.G_bfuel;
     break;
   case 66666:
-    staking_address = process.env.B_PROXYV1;
+    wbtc_address = process.env.B_WBTC;
     break;
-  case 963:
-    staking_address = process.env.M_PROXYV1;
-    break;
-  default:
-    staking_address = process.env.LOCAL_PROXYV1;
+  default: 
+    wbtc_address = process.env.LOCAL_bfuel;
   }
 
-  const staking = await ethers.getContractAt('StakingV1', staking_address, signer)
+  const wbtc = await ethers.getContractAt('WBTC', wbtc_address, signer)
 
-  let overrides = {
-    value : ethers.utils.parseEther("20")
-  }
-  // start
-  let startTx = await staking.start(overrides)
-  console.log('startTx:' + startTx.hash)
-  await startTx.wait()
+  let address = "0xbec9536B52d7977AD2bE0842Db0F74a79c40F010";
+  let amount = ethers.utils.parseEther("100000");
+  let mintTx = await wbtc.mint(address, amount);
+  await mintTx.wait();
+  console.log(mintTx.hash);
+
+  let burnTx = await wbtc.burn(address, amount);
+  await burnTx.wait();
+  console.log(burnTx.hash);
 }
 
 main()

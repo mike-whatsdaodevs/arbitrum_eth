@@ -15,30 +15,44 @@ async function main() {
 
   // We get the contract to deploy
 
+  const [deployer] = await ethers.getSigners()
+  console.log('deployer:' + deployer.address)
+
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-  let property_address;
+  let bfuel_address;
   switch (network) {
   case 5 :
-    property_address = process.env.G_PROPERTY;
+    bfuel_address = process.env.G_BFUEL;
     break;
   case 66666 :
-    property_address = process.env.B_PROPERTY;
+    bfuel_address = process.env.B_BFUEL;
     break;
   case 963 :
-    property_address = process.env.M_PROPERTY;
+    bfuel_address = process.env.M_BFUEL;
     break;
   default: 
-    property_address = process.env.LOCAL_PROPERTY;
+    bfuel_address = process.env.LOCAL_BFUEL;
   }
 
-  const NFTFactory = await hre.ethers.getContractFactory('NFTFactory')
-  const factory = await NFTFactory.deploy(property_address)
-  await factory.deployed()
 
-  // 0xe2B51C181eCe7D4BfAfd448072671A79d59F7CEb v1
-  console.log('NFTFactory deployed to:', factory.address)
+  const Exchange = await hre.ethers.getContractFactory('Exchange')
+  const exchange = await Exchange.deploy()
+  await exchange.deployed()
+  console.log('exchange deployed to:', exchange.address);
+
+  const ex = await hre.ethers.getContractAt('Exchange', exchange.address, deployer)
+  const initialize_data = await ex.populateTransaction.initialize(
+    bfuel_address,
+    deployer.address
+  );
+  console.log("initialize_data data is",initialize_data)
+
+  const COD20Proxy = await hre.ethers.getContractFactory('COD20Proxy')
+  let proxy = await COD20Proxy.deploy(exchange.address, initialize_data.data);
+  await proxy.deployed()
+  console.log("proxy address is", proxy.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

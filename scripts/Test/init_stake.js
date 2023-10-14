@@ -40,6 +40,12 @@ async function main() {
     miner3_address = process.env.B_MINER3;
     btcc_address = process.env.B_BTCC
     break;
+  case 963:
+    stakingV1_address = process.env.M_PROXYV1;
+    miner1_address = process.env.M_MINER1;
+    miner2_address = process.env.M_MINER2;
+    miner3_address = process.env.M_MINER3;
+    break;
   default:
     staking_address = process.env.LOCAL_PROXY;
     stakingV1_address = process.env.LOCAL_PROXYV1;
@@ -49,12 +55,18 @@ async function main() {
     btcc_address = process.env.LOCAL_BTCC
   }
 
+
   staking_address = stakingV1_address;
+
+  console.log(staking_address);
+  console.log(miner1_address);
+  console.log(miner2_address);
+  console.log(miner3_address);
+
   const staking = await ethers.getContractAt('Staking', staking_address, signer)
   const miner1 = await ethers.getContractAt('NFTMiner', miner1_address, signer)
   const miner2 = await ethers.getContractAt('NFTMiner', miner2_address, signer)
   const miner3 = await ethers.getContractAt('NFTMiner', miner3_address, signer)
-  const token = await ethers.getContractAt('BTCCToken', btcc_address, signer)
 
   let approve_miner1_Tx = await miner1.setApprovalForAll(staking_address, true)
   console.log('approveTx:' + approve_miner1_Tx.hash)
@@ -70,12 +82,6 @@ async function main() {
 
   let setFuelReceiverTx = await staking.setFuelReceiver(deployer.address);
   await setFuelReceiverTx.wait();
-
-  if(network != 66666) {
-    // approve
-    let approveTokenTx = await token.approve(staking_address, ethers.constants.MaxUint256);
-    await approveTokenTx.wait();
-  }
 
   let setNFTMinerTx1 = await staking.setNFTStatus(miner1_address, true);
   await setNFTMinerTx1.wait();

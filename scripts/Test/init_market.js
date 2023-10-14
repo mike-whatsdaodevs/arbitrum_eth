@@ -1,5 +1,4 @@
 const { ethers, run } = require('hardhat')
-require('dotenv').config({ path: '.env' })
 
 async function main() {
   await run('compile')
@@ -11,6 +10,7 @@ async function main() {
   console.log('NetWorks Name is ', (await ethers.provider.getNetwork()).name)
 
   const [deployer] = await ethers.getSigners()
+
   console.log('deployer:' + deployer.address)
 
   const network = (await ethers.provider.getNetwork()).chainId;
@@ -33,36 +33,30 @@ async function main() {
     miner3_address = process.env.B_MINER3;
     market_address = process.env.B_MARKET;
     break;
+  case 963 :
+    miner1_address = process.env.B_MINER1;
+    miner2_address = process.env.B_MINER2;
+    miner3_address = process.env.B_MINER3;
+    market_address = process.env.B_MARKET;
+    break;
   default: 
     miner1_address = process.env.LOCAL_MINER1;
     miner2_address = process.env.LOCAL_MINER2;
     miner3_address = process.env.LOCAL_MINER3;
     market_address = process.env.LOCAL_MARKET;
   }
-
-  let miner_address = miner1_address;
+  /// market
   const market = await ethers.getContractAt('MarketPlace', market_address, signer)
-  const miner = await ethers.getContractAt('NFTMiner', miner_address, signer)
+  let setMarketNFTMinerTx1 = await market.setNFTMiner(miner1_address, true);
+  await setMarketNFTMinerTx1.wait();
 
+  let setMarketNFTMinerTx2 = await market.setNFTMiner(miner2_address, true);
+  await setMarketNFTMinerTx2.wait();
 
-  let nft_info = await market.getNFT(miner_address, 24);
-  console.log(nft_info);
-//  return;
-  // function buy(address nftAddr, uint256 tokenId, uint256 giftCode)
-  
-  let overrides = {
-    value: ethers.utils.parseEther("1.2")
-  }
-  let buyTx = await market.buy(
-    miner_address,
-    24,
-    0,
-    overrides
-  );
-  await buyTx.wait();
+  let setMarketNFTMinerTx3 = await market.setNFTMiner(miner3_address, true);
+  await setMarketNFTMinerTx3.wait();
 
-  let result = await market.getNFT(miner_address, 24);
-  console.log(result);
+  console.log("done");
 
 }
 
