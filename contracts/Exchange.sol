@@ -12,15 +12,11 @@ contract Exchange is OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
     using SafeMath for uint256;
     using TransferHelper for address;
 
-    address btcc = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    address bfuel;
+    address public bfuel;
     address admin;
     address wallet;
 
-    // how much erc20 to 1 bfuel
-    uint256 public price = 1E20;
     uint256 constant _1Bfuel = 1E18;
-
      // how much ETH to 1 bfuel
     uint256 public ethprice;
 
@@ -35,6 +31,7 @@ contract Exchange is OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
 
         bfuel = _bfuel;
         wallet = _wallet;
+        ethprice = 0.05 ether;
 
         admin = msg.sender;
     }
@@ -52,7 +49,7 @@ contract Exchange is OwnableUpgradeable, UUPSUpgradeable, PausableUpgradeable {
     // @dev receive eth to swap Bfuel
     function swapForETH() public payable whenNotPaused {
         uint256 payamount = msg.value;
-        uint256 bfuelAmount = payamount.mul(ethprice).div(_1Bfuel);
+        uint256 bfuelAmount = payamount.mul(_1Bfuel).div(ethprice);
         bfuel.safeTransfer(msg.sender, bfuelAmount);
         wallet.safeTransferETH(payamount);
         emit Swap(msg.sender, ethprice, payamount, bfuelAmount);

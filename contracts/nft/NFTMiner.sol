@@ -8,6 +8,12 @@ import "hardhat/console.sol";
 
 pragma solidity 0.8.6;
 
+
+
+// ZEON GT1X
+// ZEON GT10X
+// ZEON GT100X
+/// https://nft.bitcoincode.technology/ZeonGT100X/1
 contract NFTMiner is ERC721Enumerable, Manage, Pausable {
     using Counters for Counters.Counter;
 
@@ -15,8 +21,14 @@ contract NFTMiner is ERC721Enumerable, Manage, Pausable {
 
     string public baseURI;
 
-    constructor() ERC721("SHA256 Miner", "SHA256Miner") {
-        setBaseURI("https://nft.btc-z.org/");
+    constructor(
+        string memory _name, 
+        string memory _symbol, 
+        string memory _uri
+    ) 
+        ERC721(_name, _symbol) 
+    {
+        setBaseURI(_uri);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {

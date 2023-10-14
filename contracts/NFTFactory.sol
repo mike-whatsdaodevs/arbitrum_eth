@@ -53,6 +53,25 @@ contract NFTFactory is Pausable, Manage {
         return id;
     }
 
+    function batchBuildMinerByArray(
+        address[] calldata nftAddrs,
+        address[] calldata targets,
+        uint256[] calldata amounts
+    )   
+        public
+        whenNotPaused
+        onlyManage
+    {
+        uint256 len = nftAddrs.length;
+        for(uint i; i < len; ++ i) {
+            batchBuildMiner(
+                nftAddrs[i],
+                targets[i],
+                amounts[i]
+            );
+        }
+    }
+
     function batchBuildMiner(
         address nftAddr, 
         address target, 
