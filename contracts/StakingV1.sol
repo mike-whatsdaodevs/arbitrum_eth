@@ -231,7 +231,7 @@ contract StakingV1 is
         _consumptionOf[msg.sender] = _consumptionOf[msg.sender].add(
             _consumption
         );
-        emit MinerStaked(msg.sender, minerId);
+        emit MinerStaked(msg.sender, nftAddr, minerId);
     }
 
     /**
@@ -282,7 +282,7 @@ contract StakingV1 is
         delete nftStakes[nftAddr][minerId];
 
         IERC721(nftAddr).safeTransferFrom(address(this), msg.sender, minerId);
-        emit MinerWithdrawn(msg.sender, minerId);
+        emit MinerWithdrawn(msg.sender, nftAddr, minerId);
     }
 
     // Receive award
@@ -486,8 +486,8 @@ contract StakingV1 is
     event SetPause(address _owner);
     event SetUnPause(address _owner);
     event RewardAdded(uint256 reward);
-    event MinerStaked(address indexed user, uint256 id);
-    event MinerWithdrawn(address indexed user, uint256 id);
+    event MinerStaked(address indexed user, address indexed nftAddr, uint256 id);
+    event MinerWithdrawn(address indexed user, address indexed nftAddr, uint256 id);
     event RewardPaid(address indexed user, uint256 reward);
     event RewardsDurationUpdated(uint256 newDuration);
     event Recovered(address token, uint256 amount);
