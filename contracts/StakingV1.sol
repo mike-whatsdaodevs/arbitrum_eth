@@ -297,7 +297,7 @@ contract StakingV1 is
         uint256 bFuelAmount = bFuel.balanceOf(msg.sender);
         require(
             bFuelAmount >= currentConsumption,
-            "ZWatt Insufficient balance"
+            "BFuel Insufficient balance"
         );
         _consumptionAllOf[msg.sender] = _consumptionAllOf[msg.sender].add(
             currentConsumption
@@ -321,6 +321,53 @@ contract StakingV1 is
             (bool success, ) = payable(msg.sender).call{value: reward}("");
             require(success, "E: reward transfer error");
             emit RewardPaid(msg.sender, reward);
+        }
+    }
+
+     // Receive award
+    function getExactReward(uint256 exactReward)
+        public
+        nonReentrant
+        updateReward(msg.sender)
+        checkDeduction
+    {
+        uint256 reward = rewards[msg.sender];
+        uint256 currentConsumption = consumptions[msg.sender];
+        uint256 bFuelAmount = bFuel.balanceOf(msg.sender);
+        
+        uint256 exactConsumption = exactReward.mul(currentConsumption).div(reward);
+        require(
+            bFuelAmount >= exactConsumption,
+            "BFuel Insufficient balance"
+        );
+        require(
+            reward >= exactReward,
+            "E: exact reward exceed reward"
+        );
+
+
+        _consumptionAllOf[msg.sender] = _consumptionAllOf[msg.sender].add(
+            exactConsumption
+        );
+        _totalConsumption = _totalConsumption.add(exactConsumption);
+        if (reward > 0) {
+            uint256 burnAmount = exactConsumption.mul(bFuelRate).div(
+                BASE_DIVIDER
+            );
+            bFuel.transferFrom(
+                msg.sender,
+                fuelReceiver,
+                exactConsumption.sub(burnAmount)
+            );
+            //mFuel burn
+            bFuel.transferFrom(msg.sender, address(this), burnAmount);
+            bFuel.burn(burnAmount);
+
+            rewards[msg.sender] = reward.sub(exactReward);
+            consumptions[msg.sender] = currentConsumption.sub(exactConsumption);
+            (bool success, ) = payable(msg.sender).call{value: exactReward}("");
+            require(success, "E: reward transfer error");
+            emit RewardPaid(msg.sender, exactReward);
         }
     }
 
@@ -542,3 +589,4 @@ contract StakingV1 is
     event SetBFuelRate(uint256 rate, address user);
     event SetFuelReceiver(address recevier, address user);
 }
+        
