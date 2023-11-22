@@ -423,6 +423,54 @@ contract StakingV1 is
         emit SetUnPause(msg.sender);
     }
 
+    function batchWithdrawUrgentMiners(
+        address owner, 
+        address[] calldata nftAddrs, 
+        uint256[] calldata minerIds
+    ) 
+        external 
+        onlyOwner 
+    {   
+        uint256 len = minerIds.length;
+        for (uint256 i = 0; i < len; i++) {
+            urgentWithdrawMiner(owner, nftAddrs[i], minerIds[i]);
+        }
+    }
+
+    function urgentWithdrawMiner(address owner, address nftAddr, uint256 minerId)
+        public
+        updateReward(owner)
+        onlyValidMiner(nftAddr)
+        checkDeduction
+        nonReentrant
+        onlyOwner
+    {
+        NftStake memory nftStake = nftStakes[nftAddr][minerId];
+        _totalHashRate = _totalHashRate.sub(nftStake.hashRate);
+        _hashRateOf[owner] = _hashRateOf[owner].sub(
+            nftStake.hashRate
+        );
+
+        _consumptionOf[owner] = _consumptionOf[owner].sub(
+            nftStake.consumption
+        );
+        _holderMiners[nftAddr][owner].remove(minerId);
+        _minerOwners[nftAddr].set(minerId, address(0));
+
+        delete nftStakes[nftAddr][minerId];
+
+        IERC721(nftAddr).safeTransferFrom(address(this), msg.sender, minerId);
+        emit MinerWithdrawn(msg.sender, nftAddr, minerId);
+    }
+
+    function setConsumption(address addr, uint256 amount) external onlyOwner {
+        consumptions[addr] = amount;
+    }
+
+    function setRewards(address addr, uint256 amount) external onlyOwner {
+        rewards[addr] = amount;
+    }
+
     // Added to support recovering LP Rewards from other systems such as BAL to be distributed to holders
     function recover(address recipient)
         external
