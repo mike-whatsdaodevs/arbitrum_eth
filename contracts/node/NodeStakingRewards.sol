@@ -55,7 +55,7 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
     function rewardPerToken() public view returns (uint) {
         return
             rewardPerTokenStored +
-            (rewardRate * (lastTimeRewardApplicable() - updatedAt) * 1e18);
+            (rewardRate * (lastTimeRewardApplicable() - updatedAt) * 1e18) / 10_000_000_000;
     }
 
     function setRewardRate(uint rate) external onlyOwner {
@@ -85,7 +85,7 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
     }
 
 
-    function withdraw() external updateReward(msg.sender) {
+    function withdraw() external whenNotPaused updateReward(msg.sender) {
         uint _amount = balanceOf[msg.sender];
         require(_amount > 0, "amount = 0");
         balanceOf[msg.sender] -= _amount;
@@ -95,8 +95,11 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
 
     function earned(address _account) public view returns (uint) {
         return
-            ((balanceOf[_account] *
-                (rewardPerToken() - userRewardPerTokenPaid[_account])) / 1e18) +
+            (
+                (balanceOf[_account] *
+                    (rewardPerToken() - userRewardPerTokenPaid[_account])
+                ) / 1e18
+            ) +
             rewards[_account];
     }
 
@@ -104,14 +107,29 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
         uint reward = rewards[msg.sender];
         if (reward > 0) {
             rewards[msg.sender] = 0;
-            /// rewardsToken.transfer(msg.sender, reward);
             payable(msg.sender).transfer(reward);
+        }
+    }
+
+    function deletegateGetReward(address to) external updateReward(to) {
+        uint reward = rewards[to];
+        if (reward > 0) {
+            rewards[to] = 0;
+            payable(to).transfer(reward);
         }
     }
 
     function takeBack() external onlyOwner {
         uint balance = address(this).balance;
         payable(msg.sender).transfer(balance);
+    }
+
+    function pause() public virtual onlyOwner {
+        _pause();
+    }
+
+    function unpause() public virtual onlyOwner {
+        _unpause();
     }
 
     function _min(uint x, uint y) private pure returns (uint) {
