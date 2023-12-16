@@ -111,11 +111,19 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
         }
     }
 
-    function deletegateGetReward(address to) external updateReward(to) {
+    function deletegateGetReward(address to) public updateReward(to) {
         uint reward = rewards[to];
         if (reward > 0) {
             rewards[to] = 0;
             payable(to).transfer(reward);
+        }
+    }
+
+    function batchDelegateGetReward(address[] calldata addrs) external {
+        uint len = addrs.length;
+
+        for(uint i; i < len; ++i ) {
+            deletegateGetReward(addrs[i]);
         }
     }
 
