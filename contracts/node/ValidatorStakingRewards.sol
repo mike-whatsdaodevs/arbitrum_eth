@@ -6,7 +6,7 @@ import {OwnableUpgradeable as Ownable} from "@openzeppelin/contracts-upgradeable
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
+contract ValidatorStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
     // Minimum of last updated time and reward finish time
     uint public updatedAt;
     // Reward to be paid out per second
@@ -32,7 +32,9 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
         __UUPSUpgradeable_init();
     }
 
-    receive() external payable {}
+    receive() external payable {
+        stake();
+    }
 
     modifier updateReward(address _account) {
         rewardPerTokenStored = rewardPerToken();
@@ -50,7 +52,6 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
         return block.timestamp;
     }
 
-    /// 208
     function rewardPerToken() public view returns (uint) {
         return
             rewardPerTokenStored +
@@ -77,19 +78,11 @@ contract NodeStakingRewards is Ownable, UUPSUpgradeable, PausableUpgradeable {
     }
 
 
-    function standardStake(address to) public payable updateReward(to) onlyOwner {
+    function standardStake(address to) public payable updateReward(to) {
         uint _amount = 1000 ether;
         balanceOf[to] += _amount;
         totalSupply += _amount;
     }
-
-    function batchStandardStake(address[] calldata addrs) external onlyOwner {
-        uint len = addrs.length;
-
-        for(uint i; i < len; i++) {
-            standardStake(addrs[i]);
-        }
-    } 
 
 
     function withdraw() external whenNotPaused updateReward(msg.sender) {
