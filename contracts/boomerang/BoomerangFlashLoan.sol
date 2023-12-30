@@ -3,7 +3,6 @@ pragma solidity =0.8.10 <= 0.8.20;
 
 import {FlashLoanSimpleReceiverBase} from "@aave/core-v3/contracts/flashloan/base/FlashLoanSimpleReceiverBase.sol";
 import {IPoolAddressesProvider} from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
-import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {TransferHelper} from "../TransferHelper.sol";
 
@@ -65,9 +64,17 @@ contract BoomerangFlashLoan is FlashLoanSimpleReceiverBase, Ownable {
     address uniswapv3Address;
     address qucikswapAddress;
 
+    mapping(address => bool) public managers;
+
     address public BoomerangController;
 
-    event WithdrawFund(address token, address to, uint256 amount, uint256 timestamp);
+    event WithdrawFund(address indexed token, address indexed to, uint256 amount, uint256 timestamp);
+    event SetManager(address indexed token, bool status, uint256 timestamp);
+
+    modifier onlyManager {
+        require(managers[msg.sender] == true, "E: caller is invalid");
+        _;
+    }
 
     constructor(
         address _addressProvider, 
@@ -80,7 +87,11 @@ contract BoomerangFlashLoan is FlashLoanSimpleReceiverBase, Ownable {
        uniswapv3Address = _uniswapv3Address;
        qucikswapAddress = _quickswapAddress;
        sushiSwapAddress = _sushiswapAddress;
+
+       managers[msg.sender] = true;
     }
+
+    receive() external payable {}
 
     function withdrawFunds(address token, uint256 amount) external onlyOwner {
         require(amount != 0, "E: amount should be greater than zero");
@@ -130,7 +141,7 @@ contract BoomerangFlashLoan is FlashLoanSimpleReceiverBase, Ownable {
     }
 
     function sushiswap(address tokenIn, address tokenOut, uint256 amount) public  returns(uint256[] memory) {
-        IERC20(tokenIn).approve(sushiSwapAddress, amount);
+        tokenIn.safeApprove(sushiSwapAddress, amount);
         address[] memory pair = new address[](2);
         pair[1] = tokenIn;
         pair[2] = tokenOut; 
@@ -146,7 +157,7 @@ contract BoomerangFlashLoan is FlashLoanSimpleReceiverBase, Ownable {
     }
 
     function quickSwap(address tokenIn, address tokenOut, uint256 amount) public returns(uint256){
-        IERC20(tokenIn).approve(qucikswapAddress, amount);
+        tokenIn.safeApprove(qucikswapAddress, amount);
         IV2SwapRouter.SushiswapParams memory params =
             IV2SwapRouter.SushiswapParams({
                 tokenIn: tokenIn,
@@ -175,30 +186,45 @@ contract BoomerangFlashLoan is FlashLoanSimpleReceiverBase, Ownable {
     ) external override returns (bool) {
         swapTokens(amount);
         uint256 amountOwed = amount + premium;
-        IERC20(asset).approve(address(POOL), amountOwed);
+        asset.safeApprove(address(POOL), amountOwed);
         return true;
     }
 
-    function requestFlashLoan(address _token, uint256 _amount, uint8[] memory _dexList, address[] memory _pairs, uint256 profit) public onlyOwner {
-        address receiverAddress = address(this);
-        address asset = _token;
-        uint256 amount = _amount;
-        bytes memory params = "";
-        uint16 referralCode = 0;
-        dexPath = _dexList;
-        pairs = _pairs;
+    function requestFlashLoan(
+        address token, 
+        uint256 amount, 
+        uint8[] memory path, 
+        address[] memory poolPairs, 
+        uint256 profit
+    ) 
+        public 
+        onlyManager 
+    {
         POOL.flashLoanSimple(
-            receiverAddress,
-            asset,
+            address(this),
+            token,
             amount,
-            params,
-            referralCode
+            "",
+            0
         );
 
+        dexPath = path;
+        pairs = poolPairs;
+
         if(profit > 0){
-            _token.safeTransfer(msg.sender, profit);
+            token.safeTransfer(msg.sender, profit);
+
         }
     }
 
-    receive() external payable {}
+    function setManager(address addr, bool status) external onlyOwner {
+        managers[addr] = status;
+        emit SetManager(addr, status, block.timestamp);
+    }
 }
+
+
+
+
+
+
