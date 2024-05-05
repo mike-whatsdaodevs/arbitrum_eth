@@ -1,9 +1,10 @@
 {
   "dependencies": {
+    "@aave/core-v3": "^1.18.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.1",
     "@openzeppelin/contracts": "^4.7.0",
     "@openzeppelin/contracts-upgradeable": "^4.7.0",
-    "dotenv": "^16.0.1",
+    "dotenv": "^16.4.5",
     "solmate": "^6.7.0"
   },
   "devDependencies": {
