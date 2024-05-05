@@ -7,12 +7,10 @@ import {IUniswapV2Router02} from "../intergrations/uniswap/IUniswapV2Router02.so
 
 contract PoolsPrice {
     IQuoterV2 public quoter;
-    address uniswapV2Factory;
     uint24[] private fees = [100, 500, 3000, 10000];
 
-    constructor(address _quoter, address _uniswapV2Factory) {
+    constructor(address _quoter) {
         quoter = IQuoterV2(_quoter);
-        uniswapV2Factory = _uniswapV2Factory;
     }
 
     function getSinglePath(address token0, address token1, uint24 fee) public view returns (bytes memory path) {
@@ -78,6 +76,7 @@ contract PoolsPrice {
     }
 
     function getUniswapV2AmountOut(
+        address uniswapV2Factory,
         address token0,
         address token1,
         uint256 amount
@@ -86,12 +85,13 @@ contract PoolsPrice {
         amountOut = UniswapV2Library.getAmountOut(amount, reserve0, reserve1);
     }
 
-    function getV2Reserves(address token0, address token1) public view returns (uint256, uint256) {
+    function getV2Reserves(address uniswapV2Factory, address token0, address token1) public view returns (uint256, uint256) {
         (uint reserve0, uint reserve1) = UniswapV2Library.getReserves(uniswapV2Factory, token0, token1);
         return (reserve0, reserve1);
     }
 
     function getUniswapV2AmountsOut(
+        address uniswapV2Factory,
         address[] memory path,
         uint256 amount
     ) public view returns (uint256[] memory amountsOut) {
