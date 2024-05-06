@@ -24,7 +24,7 @@ async function main() {
   let factory_address = process.env.UNISWAPV2_FACTORY;
 
   const PoolsPrice = await hre.ethers.getContractFactory('PoolsPrice')
-  const poolsprice = await PoolsPrice.deploy(quoterv2_address, factory_address);
+  const poolsprice = await PoolsPrice.deploy();
   await poolsprice.deployed()
   console.log('poolsprice deployed to:', poolsprice.address)
   return;
