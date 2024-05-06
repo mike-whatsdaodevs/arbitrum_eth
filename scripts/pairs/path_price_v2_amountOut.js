@@ -17,7 +17,7 @@ async function main() {
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-  let pathPrice_address = "0xf67394B56827246644359D4A3fc0D817dF8E90c0";
+  let pathPrice_address = "0x22A4A8aCbFAf23aC2674b7632df88aD8f65D4C72";
 
   let sushi_facotry = process.env.SUSHIV2_FACTORY; 
   let uni_factory = process.env.UNISWAPV2_FACTORY;
@@ -32,11 +32,11 @@ async function main() {
 
   const poolsPrice = await ethers.getContractAt('PoolsPrice', pathPrice_address, signer)
 
-  console.log("UNISWAP V3");
+  console.log("UNISWAP V2");
   let result1 = await poolsPrice.getUniswapV2AmountOut(uni_factory, weth9_address, usdt_address, ethers.utils.parseUnits("1", 18));
   console.log(ethers.utils.formatUnits(result1.toString(), 6));
 
-  console.log("Sushi V3");
+  console.log("Sushi V2");
   let result4 = await poolsPrice.getSushiV2AmountOut(sushi_facotry, weth9_address, usdt_address, ethers.utils.parseUnits("1", 18));
   console.log(ethers.utils.formatUnits(result4.toString(), 6));
 }

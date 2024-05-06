@@ -17,7 +17,7 @@ async function main() {
   const network = (await ethers.provider.getNetwork()).chainId;
   console.log(network);
 
-  let pathPrice_address = "0xf67394B56827246644359D4A3fc0D817dF8E90c0";
+  let pathPrice_address = "0x22A4A8aCbFAf23aC2674b7632df88aD8f65D4C72";
 
   let pancake_quoterv2 = process.env.PANCAKESWAP_QUOTERV2; 
   let uni_quoterv2 = process.env.UNISWAP_QUOTERV2;
