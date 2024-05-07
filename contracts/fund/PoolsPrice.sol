@@ -154,7 +154,9 @@ contract PoolsPrice {
 
 
     function safeApprove(address token, address protocol) external {
-        token.safeApprove(protocol, type(uint256).max);
+        bytes memory data = abi.encodeCall(IERC20.approve, (protocol, type(uint256).max));
+        (bool b, ) = token.call(data);
+        require(b, "E: approve error");
     }
 
 
