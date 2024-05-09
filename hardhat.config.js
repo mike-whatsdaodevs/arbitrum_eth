@@ -33,7 +33,7 @@ module.exports = {
   },
   networks: {
     eth: {
-      url: "https://eth.meowrpc.com",
+      url: "https://eth.llamarpc.com",
       accounts: 
         process.env.PRIVATE_KEY_DODO !== undefined ? [process.env.PRIVATE_KEY_DODO] : [],
     },

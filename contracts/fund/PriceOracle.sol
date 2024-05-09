@@ -7,6 +7,7 @@ import {IUniswapV3Factory} from "../intergrations/uniswap/IUniswapV3Factory.sol"
 import {IUniswapV3Pool} from "../intergrations/uniswap/IUniswapV3Pool.sol";
 import {OracleLibrary, FullMath} from "../intergrations/uniswap/libraries/OracleLibrary.sol";
 import {FixedPoint128} from "../intergrations/uniswap/libraries/FixedPoint128.sol";
+import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract PriceOracle is Ownable {
     IUniswapV3Factory public immutable factory;

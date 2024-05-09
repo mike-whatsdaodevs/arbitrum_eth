@@ -22,9 +22,10 @@ async function main() {
 
   let quoterv2_address = process.env.QUOTER_V2;
   let factory_address = process.env.UNISWAPV2_FACTORY;
+  let weth9_address = process.env.WETH9;
 
   const PoolsPrice = await hre.ethers.getContractFactory('PoolsPrice')
-  const poolsprice = await PoolsPrice.deploy();
+  const poolsprice = await PoolsPrice.deploy(weth9_address);
   await poolsprice.deployed()
   console.log('poolsprice deployed to:', poolsprice.address)
   return;

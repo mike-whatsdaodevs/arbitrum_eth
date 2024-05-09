@@ -53,6 +53,24 @@ async function main() {
   console.log(ethers.utils.formatUnits(result3.expectedAmount.toString(), 6));
 
 
+  let path_0 = await poolsPrice.getSinglePath(usdt_address, weth9_address, fees[0]);
+  let result_0 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_0, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_0.expectedAmount.toString(), 18));
+
+  let path_1 = await poolsPrice.getSinglePath(usdt_address, weth9_address, fees[1]);
+  let result_1 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_1, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_1.expectedAmount.toString(), 18));
+
+  let path_2 = await poolsPrice.getSinglePath(usdt_address, weth9_address, fees[0]);
+  let result_2 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_2, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_2.expectedAmount.toString(), 18));
+
+  let path_3 = await poolsPrice.getSinglePath(usdt_address, weth9_address, fees[0]);
+  let result_3 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_3, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_3.expectedAmount.toString(), 18));
+
+
+
   console.log("PANCAKESWAP V3");
   let path4 = await poolsPrice.getSinglePath(weth9_address, usdt_address, fees[0]);
   let result4 = await poolsPrice.callStatic.getExactInAmountOut(pancake_quoterv2, path4, ethers.utils.parseEther("1"));
@@ -70,6 +88,18 @@ async function main() {
   let result7 = await poolsPrice.callStatic.getExactInAmountOut(pancake_quoterv2, path7, ethers.utils.parseEther("1"));
   console.log(ethers.utils.formatUnits(result7.expectedAmount.toString(), 6));
 
+  let result_4 = await poolsPrice.callStatic.getExactInAmountOut(pancake_quoterv2, path_0, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_4.expectedAmount.toString(), 18));
+
+  let result_5 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_1, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_5.expectedAmount.toString(), 18));
+
+  let result_6 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_2, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_6.expectedAmount.toString(), 18));
+
+  let result_7 = await poolsPrice.callStatic.getExactInAmountOut(uni_quoterv2, path_3, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_7.expectedAmount.toString(), 18));
+
   console.log("SUSHI V3");
   let path8 = await poolsPrice.getSinglePath(weth9_address, usdt_address, fees[0]);
   let result8 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path8, ethers.utils.parseEther("1"));
@@ -86,6 +116,19 @@ async function main() {
   let path11 = await poolsPrice.getSinglePath(weth9_address, usdt_address, fees[3]);
   let result11 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path11, ethers.utils.parseEther("1"));
   console.log(ethers.utils.formatUnits(result11.expectedAmount.toString(), 6));
+
+  let result_8 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path_0, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_8.expectedAmount.toString(), 18));
+
+  let result_9 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path_1, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_9.expectedAmount.toString(), 18));
+
+  let result_10 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path_2, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_10.expectedAmount.toString(), 18));
+
+  let result_11 = await poolsPrice.callStatic.getExactInAmountOut(sushi_quoterv2, path_3, ethers.utils.parseUnits("1000", 6));
+  console.log(ethers.utils.formatUnits(result_11.expectedAmount.toString(), 18));
+
 
 }
 

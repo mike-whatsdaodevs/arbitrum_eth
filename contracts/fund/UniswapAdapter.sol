@@ -12,7 +12,8 @@ library UniswapAdapter {
         address uniswapRouter,
         uint256 amountIn,
         uint256 amountOutMin,
-        address[] calldata path,
+        address[] memory path,
+        address to,
         uint256 value
     ) internal returns (uint256 amountOut) {
 
@@ -23,7 +24,7 @@ library UniswapAdapter {
                     amountIn, 
                     amountOutMin, 
                     path,
-                    address(this)
+                    to
             )
         );
         
@@ -34,7 +35,7 @@ library UniswapAdapter {
 
     function uniswapV3Single(
         address uniswapRouter,
-        ISwapRouter02.ExactInputSingleParams calldata params,
+        ISwapRouter02.ExactInputSingleParams memory params,
         uint256 value
     ) internal returns (uint256 amountOut) {
         (bool success, bytes memory data) = uniswapRouter.call {value: value} (
@@ -44,14 +45,14 @@ library UniswapAdapter {
             )
         );
         
-        require(success, 'V2 ERROR');
+        require(success, 'V3 Single ERROR');
 
         return abi.decode(data, (uint256));
     }
 
     function uniswapV3(
         address uniswapRouter,
-        ISwapRouter02.ExactInputParams calldata params,
+        ISwapRouter02.ExactInputParams memory params,
         uint256 value
     ) internal returns (uint256 amountOut) {
         (bool success, bytes memory data) = uniswapRouter.call {value: value} (
@@ -61,9 +62,21 @@ library UniswapAdapter {
             )
         );
         
-        require(success, 'V2 ERROR');
+        require(success, 'V3 ERROR');
 
         return abi.decode(data, (uint256));
+    }
+
+    function uniswapCall(
+        address uniswapRouter,
+        bytes memory data,
+        uint256 value
+    ) internal returns (uint256) {
+        (bool success, bytes memory context) = uniswapRouter.call {value: value}(data);
+        
+        require(success, 'Router ERROR');
+
+        return abi.decode(context, (uint256));
     }
 
     // function multicall(uint256 deadline, bytes[] calldata data) external payable returns (bytes[] memory results);
@@ -81,7 +94,7 @@ library UniswapAdapter {
             )
         );
         
-        require(success, 'V2 ERROR');
+        require(success, 'V3 ERROR');
 
         results = abi.decode(data, (bytes[]));
     }

@@ -26,9 +26,15 @@ async function main() {
   let wstETH_address = "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0";
   let dai_address = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
   let pepe_address = "0x6982508145454Ce325dDbE47a25d4ec3d2311933";
+
+
   let fees = [100, 500, 3000, 10000];
 
   const poolsPrice = await ethers.getContractAt('PoolsPrice', pathPrice_address, signer)
+  const token = await ethers.getContractAt("IERC20Metadata", pepe_address, signer);
+
+  console.log(await token.decimals());return;
+
 
   let params = {
       tokenIn: weth9_address,
